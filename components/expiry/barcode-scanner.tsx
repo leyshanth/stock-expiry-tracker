@@ -22,6 +22,7 @@ export default function BarcodeScanner({
   const [isInitializing, setIsInitializing] = useState(true);
   const [hasError, setHasError] = useState(false);
   const { toast } = useToast();
+  const [scannerStarted, setScannerStarted] = useState(false);
 
   // Handle escape key to close modal
   useEffect(() => {
@@ -36,30 +37,68 @@ export default function BarcodeScanner({
   }, [onClose]);
 
   useEffect(() => {
+    // Make sure we have a clean state before starting
+    const cleanupQuagga = () => {
+      try {
+        console.log("Cleaning up Quagga before initialization");
+        Quagga.offDetected();
+        Quagga.offProcessed();
+        Quagga.stop();
+      } catch (e) {
+        // Ignore errors from stopping - it might not be running
+        console.log("Quagga wasn't running, continuing with initialization");
+      }
+    };
+
     const startScanner = async () => {
-      if (!scannerRef.current) return;
+      // Check if scannerRef is available and scanner isn't already started
+      if (!scannerRef.current || scannerStarted) {
+        console.log("Scanner ref not available or scanner already started");
+        return;
+      }
 
       try {
         setIsInitializing(true);
         setHasError(false);
+        
+        // Clean up any existing Quagga instance
+        cleanupQuagga();
+        
+        // Mark scanner as started to prevent multiple initializations
+        setScannerStarted(true);
 
+        // Verify scannerRef is still valid before initializing
+        if (!scannerRef.current) {
+          console.error("Scanner ref lost during initialization");
+          throw new Error("Scanner reference is no longer available");
+        }
+
+        // Initialize Quagga with optimized settings
+        console.log("Initializing Quagga with target:", scannerRef.current);
         await Quagga.init({
           inputStream: {
             name: "Live",
             type: "LiveStream",
             target: scannerRef.current,
             constraints: {
-              width: { min: 640 },
-              height: { min: 480 },
+              width: { min: 320 }, // Reduced minimum size for better compatibility
+              height: { min: 240 },
               facingMode: "environment", // Use the rear camera
               aspectRatio: { min: 1, max: 2 }
+            },
+            area: { // Define scan area for better performance
+              top: "25%",    // top offset
+              right: "10%",  // right offset
+              left: "10%",   // left offset
+              bottom: "25%", // bottom offset
             },
           },
           locator: {
             patchSize: "medium",
             halfSample: true,
           },
-          numOfWorkers: navigator.hardwareConcurrency || 2,
+          frequency: 10, // Increase scanning frequency
+          numOfWorkers: 2, // Fixed number of workers for better stability
           decoder: {
             readers: [
               "ean_reader",
@@ -70,19 +109,30 @@ export default function BarcodeScanner({
               "upc_reader",
               "upc_e_reader",
             ],
+            // Disable debug settings for better performance
             debug: {
-              drawBoundingBox: true,
-              showFrequency: true,
-              drawScanline: true,
-              showPattern: true,
+              drawBoundingBox: false,
+              showFrequency: false,
+              drawScanline: false,
+              showPattern: false,
             },
           },
           locate: true,
         });
 
-        Quagga.start();
-        setIsInitializing(false);
+        // Start Quagga with proper error handling
+        try {
+          await Quagga.start();
+          console.log("Quagga started successfully");
+          setIsInitializing(false);
+        } catch (startError) {
+          console.error("Error starting Quagga after initialization:", startError);
+          throw startError; // Re-throw to be caught by the outer try-catch
+        }
 
+        // Remove any existing event listeners to prevent duplicates
+        Quagga.offDetected();
+        
         // Add event listener for barcode detection
         Quagga.onDetected((result: any) => {
           if (result && result.codeResult) {
@@ -98,6 +148,17 @@ export default function BarcodeScanner({
             }
             
             // Stop scanner and call the callback
+            try {
+              // Remove event listeners first to prevent memory leaks
+              Quagga.offDetected();
+              Quagga.offProcessed();
+              Quagga.stop();
+              setScannerStarted(false);
+              console.log("Quagga stopped after detection");
+            } catch (e) {
+              console.error("Error stopping Quagga:", e);
+            }
+            
             if (typeof code === 'string') {
               onDetected(code);
             } else if (code) {
@@ -157,6 +218,16 @@ export default function BarcodeScanner({
         console.error("Error starting barcode scanner:", error);
         setHasError(true);
         setIsInitializing(false);
+        setScannerStarted(false);
+        
+        // Clean up any partial initialization
+        try {
+          Quagga.offDetected();
+          Quagga.offProcessed();
+          Quagga.stop();
+        } catch (e) {
+          // Ignore cleanup errors
+        }
         
         if (onError) {
           onError(error instanceof Error ? error.message : String(error));
@@ -173,21 +244,46 @@ export default function BarcodeScanner({
     // Always start scanner in modal mode
     startScanner();
 
-    // Cleanup function
+    // Cleanup function that runs when component unmounts
     return () => {
       try {
+        console.log("Cleaning up scanner on unmount...");
+        // Remove all event listeners first
+        Quagga.offDetected();
+        Quagga.offProcessed();
+        // Then stop the scanner
         Quagga.stop();
+        setScannerStarted(false);
       } catch (error) {
-        console.error("Error stopping scanner:", error);
+        console.error("Error stopping scanner during cleanup:", error);
       }
     };
   }, [onDetected, onError, toast]);
 
   const handleManualEntry = () => {
+    // First stop the scanner if it's running
+    try {
+      // Remove event listeners first
+      Quagga.offDetected();
+      Quagga.offProcessed();
+      // Then stop the scanner
+      Quagga.stop();
+      setScannerStarted(false);
+    } catch (e) {
+      // Ignore errors from stopping
+    }
+    
     const barcode = prompt("Enter barcode manually:");
     if (barcode && barcode.trim() !== "") {
       onDetected(barcode.trim());
     }
+  };
+  
+  // For testing - simulate a barcode scan
+  const simulateScan = () => {
+    const testBarcodes = ["5901234123457", "0123456789012", "1234567890128"];
+    const randomBarcode = testBarcodes[Math.floor(Math.random() * testBarcodes.length)];
+    onDetected(randomBarcode);
   };
 
   return (
@@ -243,6 +339,9 @@ export default function BarcodeScanner({
           )}
           <Button onClick={handleManualEntry} className={cn("ml-auto", onClose ? "" : "w-full")}>
             Enter Manually
+          </Button>
+          <Button onClick={simulateScan} variant="secondary" className="ml-2">
+            Test Scan
           </Button>
         </div>
       </div>
