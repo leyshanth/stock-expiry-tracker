@@ -44,9 +44,11 @@ export default function BarcodeScanner({
       if (!scannerRef.current) return;
       
       try {
-        // Cleanup any existing instances first
+        // Don't stop Quagga before initialization - this can cause issues
+        // Just make sure we remove any event listeners
         try {
-          Quagga.stop();
+          Quagga.offDetected();
+          Quagga.offProcessed();
         } catch (e) {
           // Ignore - might not be running
         }
@@ -54,14 +56,22 @@ export default function BarcodeScanner({
         setIsInitializing(true);
         setHasError(false);
         
-        // Initialize with minimal configuration
+        // Initialize with more specific configuration
         await Quagga.init({
           inputStream: {
             name: "Live",
             type: "LiveStream",
             target: scannerRef.current,
             constraints: {
+              width: { min: 320, ideal: 640, max: 1280 },
+              height: { min: 240, ideal: 480, max: 720 },
               facingMode: "environment"
+            },
+            area: { // Define scan area for better performance
+              top: "25%",    // top offset
+              right: "10%",  // right offset
+              left: "10%",   // left offset
+              bottom: "25%", // bottom offset
             }
           },
           locator: {
@@ -86,6 +96,10 @@ export default function BarcodeScanner({
           setIsInitializing(false);
         }
         
+        // Remove any existing event listeners first
+        Quagga.offDetected();
+        Quagga.offProcessed();
+        
         // Set up barcode detection handler
         Quagga.onDetected((result) => {
           if (!result || !result.codeResult) return;
@@ -100,7 +114,63 @@ export default function BarcodeScanner({
               beep.play().catch(() => {});
             } catch (e) {}
             
+            // Stop Quagga after successful scan
+            try {
+              Quagga.offDetected();
+              Quagga.offProcessed();
+              Quagga.stop();
+              console.log("Quagga stopped after successful scan");
+            } catch (stopError) {
+              console.error("Error stopping Quagga after scan:", stopError);
+            }
+            
             onDetected(code);
+          }
+        });
+        
+        // Add processing visualization for better feedback
+        Quagga.onProcessed((result) => {
+          const drawingCtx = Quagga.canvas.ctx.overlay;
+          const drawingCanvas = Quagga.canvas.dom.overlay;
+          
+          if (!drawingCtx || !drawingCanvas) return;
+
+          // Clear the canvas
+          drawingCtx.clearRect(
+            0, 
+            0, 
+            Number(drawingCanvas.getAttribute("width")), 
+            Number(drawingCanvas.getAttribute("height"))
+          );
+
+          if (result) {
+            // Draw boxes for potential barcodes
+            if (result.boxes) {
+              result.boxes
+                .filter((box: any) => box !== result.box)
+                .forEach((box: any) => {
+                  Quagga.ImageDebug.drawPath(box, { x: 0, y: 1 }, drawingCtx, { 
+                    color: "green", 
+                    lineWidth: 2 
+                  });
+                });
+            }
+
+            // Highlight the main detected box
+            if (result.box) {
+              Quagga.ImageDebug.drawPath(result.box, { x: 0, y: 1 }, drawingCtx, { 
+                color: "blue", 
+                lineWidth: 2 
+              });
+            }
+
+            // Draw the scan line for successful reads
+            if (result.codeResult && result.codeResult.code) {
+              Quagga.ImageDebug.drawPath(result.line, { x: 'x', y: 'y' }, drawingCtx, { 
+                color: "red", 
+                lineWidth: 3 
+              });
+            }
           }
         });
       } catch (error) {
@@ -110,13 +180,29 @@ export default function BarcodeScanner({
           setIsInitializing(false);
         }
         
+        // Check for specific permission errors
+        let errorMessage = "Failed to access camera. Please check permissions.";
+        if (error instanceof Error) {
+          if (error.name === "NotAllowedError" || error.message.includes("Permission denied")) {
+            errorMessage = "Camera access denied. Please allow camera permissions in your browser settings.";
+          } else if (error.name === "NotFoundError" || error.message.includes("Requested device not found")) {
+            errorMessage = "No camera found. Please ensure your device has a working camera.";
+          } else if (error.name === "NotReadableError" || error.message.includes("Could not start video source")) {
+            errorMessage = "Camera is in use by another application. Please close other applications using the camera.";
+          } else if (error.name === "OverconstrainedError") {
+            errorMessage = "Camera doesn't meet the required constraints. Try using a different camera.";
+          } else if (error.name === "AbortError") {
+            errorMessage = "Camera initialization was aborted. Please try again.";
+          }
+        }
+        
         if (onError) {
           onError(error instanceof Error ? error.message : String(error));
         }
         
         toast({
           title: "Camera Error",
-          description: "Failed to access camera. Please check permissions.",
+          description: errorMessage,
           variant: "destructive"
         });
       }
