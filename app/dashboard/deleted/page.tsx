@@ -40,8 +40,9 @@ export default function DeletedItemsPage() {
         
         // Sort by deletion date (most recent first)
         itemsWithProducts.sort((a, b) => {
-          const dateA = new Date(a.$updatedAt || a.$createdAt)
-          const dateB = new Date(b.$updatedAt || b.$createdAt)
+          // Use deleted_at for sorting, or fall back to created_at
+          const dateA = a.deleted_at ? new Date(a.deleted_at) : (a.created_at ? new Date(a.created_at) : new Date())
+          const dateB = b.deleted_at ? new Date(b.deleted_at) : (b.created_at ? new Date(b.created_at) : new Date())
           return dateB.getTime() - dateA.getTime()
         })
         
@@ -92,7 +93,7 @@ export default function DeletedItemsPage() {
     }
 
     try {
-      await databaseService.deleteExpiryItem(itemId)
+      await databaseService.permanentlyDeleteExpiryItem(itemId)
       
       // Update the local state
       setDeletedItems((prevItems) => prevItems.filter((item) => item.$id !== itemId))
@@ -129,7 +130,7 @@ export default function DeletedItemsPage() {
         Quantity: item.quantity,
         "Expiry Date": formatDate(item.expiry_date),
         Category: item.product?.category || "",
-        "Deleted Date": formatDate(item.$updatedAt || item.$createdAt),
+        "Deleted Date": formatDate(item.deleted_at || item.created_at || new Date()),
       }))
       
       // Export to CSV
@@ -202,7 +203,7 @@ export default function DeletedItemsPage() {
                       <p><span className="font-medium">Category:</span> {item.product.category}</p>
                     )}
                     <p className="text-muted-foreground">
-                      <span className="font-medium">Deleted:</span> {formatDate(item.$updatedAt || item.$createdAt)}
+                      <span className="font-medium">Deleted:</span> {formatDate(item.deleted_at || item.created_at || new Date())}
                     </p>
                   </div>
                   
