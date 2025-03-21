@@ -178,7 +178,7 @@ export default function HomePage() {
                     <Button 
                       variant="destructive" 
                       size="sm"
-                      onClick={() => handleDeleteItem(item.$id)}
+                      onClick={() => item.$id ? handleDeleteItem(item.$id) : undefined}
                       className="px-3"
                     >
                       Delete
