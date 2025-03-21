@@ -4,7 +4,7 @@
 
 @layer components {
   .mobile-nav {
-    @apply fixed bottom-0 left-0 right-0 z-50 flex h-16 w-full items-center justify-around border-t bg-background px-2;
+    @apply fixed bottom-4 left-0 right-0 z-50 flex h-16 w-full items-center justify-around border border-border rounded-xl mx-auto max-w-md shadow-lg bg-background px-2;
   }
 
   .mobile-nav-item {

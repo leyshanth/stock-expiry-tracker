@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import Quagga from "@ericblade/quagga2"
 import { AlertCircle, Camera, RefreshCw, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useToast } from "@/components/ui/use-toast"
 
 interface BarcodeScannerProps {
   onDetected: (barcode: string) => void
@@ -21,6 +22,7 @@ export default function BarcodeScanner({
   const scannerRef = useRef<HTMLDivElement>(null)
   const [hasError, setHasError] = useState(false)
   const [isInitializing, setIsInitializing] = useState(true)
+  const { toast } = useToast()
   
   // Track the last detection time for throttling
   const lastDetectionTime = useRef<number>(0)
@@ -32,6 +34,26 @@ export default function BarcodeScanner({
     setHasError(false)
     
     try {
+      // First check if camera permissions are available
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        // Stop the stream immediately after checking permissions
+        stream.getTracks().forEach(track => track.stop());
+      } catch (permissionError) {
+        console.error("Camera permission error:", permissionError);
+        setHasError(true);
+        setIsInitializing(false);
+        toast({
+          title: "Camera Access Denied",
+          description: "Please allow camera access to use the barcode scanner",
+          variant: "destructive"
+        });
+        if (onError) {
+          onError("Camera permission denied");
+        }
+        return;
+      }
+      
       await Quagga.init({
         inputStream: {
           name: "Live",
@@ -39,8 +61,8 @@ export default function BarcodeScanner({
           target: scannerRef.current,
           constraints: {
             facingMode: "environment", // Use the back camera on mobile devices
-            width: { min: 640 },
-            height: { min: 480 },
+            width: { min: 320 },
+            height: { min: 240 },
             aspectRatio: { min: 1, max: 2 },
           },
         },
@@ -48,7 +70,7 @@ export default function BarcodeScanner({
           patchSize: "medium",
           halfSample: true,
         },
-        numOfWorkers: navigator.hardwareConcurrency || 2,
+        numOfWorkers: 2, // Reduced for better performance
         frequency: 10,
         decoder: {
           readers: [
