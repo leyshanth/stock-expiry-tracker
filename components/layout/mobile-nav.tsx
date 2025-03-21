@@ -43,50 +43,26 @@ export function MobileNav() {
     },
   ]
 
-  // Style for the mobile navigation
-  const navStyle = {
-    position: 'fixed',
-    bottom: '20px',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    width: '95%',
-    maxWidth: '450px',
-    height: '64px',
-    display: 'flex',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    backgroundColor: 'hsl(var(--background))',
-    backdropFilter: 'none',
-    borderRadius: '12px',
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)',
-    zIndex: 50,
-    border: '1px solid var(--border)',
-    // Add a more solid background to ensure buttons are visible
-    background: 'hsl(var(--card))',
-  } as React.CSSProperties
+  // No longer using inline styles, using Tailwind classes instead
 
   // Don't render until client-side to avoid hydration issues
   if (!isMounted) return null
 
   return (
-    <div style={navStyle}>
+    <nav className="mobile-nav">
       {navItems.map((item) => (
         <Link
           key={item.href}
           href={item.href}
           className={cn(
-            "flex flex-col items-center justify-center p-2 text-xs transition-colors font-medium",
-            pathname === item.href 
-              ? "text-primary font-semibold" 
-              : "text-muted-foreground hover:text-foreground"
+            "mobile-nav-item",
+            pathname === item.href ? "active" : ""
           )}
         >
-          <div className="rounded-full bg-background/80 p-1">
-            <item.icon className="h-5 w-5" />
-          </div>
-          <span className="mt-0.5">{item.label}</span>
+          <item.icon className="mobile-nav-icon" />
+          <span>{item.label}</span>
         </Link>
       ))}
-    </div>
+    </nav>
   )
 }

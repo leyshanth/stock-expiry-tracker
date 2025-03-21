@@ -188,15 +188,19 @@ export default function ExpiryPage() {
   }, [])
 
   return (
-    <div className="container mx-auto max-w-md">
-      <h1 className="mb-6 text-2xl font-bold">Expiry Tracking</h1>
+    <div className="container mx-auto max-w-md py-8">
+      <div className="mb-8 bg-gradient-to-r from-primary/10 to-secondary/10 p-6 rounded-2xl">
+        <h1 className="text-2xl font-bold">Expiry Tracking</h1>
+        <p className="text-muted-foreground mt-2">Add and manage product expiry dates</p>
+      </div>
       
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle className="text-lg">Scan Barcode</CardTitle>
-        </CardHeader>
+      <div className="mb-8 bg-card rounded-xl border border-border shadow-sm p-6">
+        <h2 className="section-title mb-4">
+          <Barcode className="h-5 w-5 mr-2 text-primary" />
+          Scan Barcode
+        </h2>
         
-        <CardContent className="space-y-4">
+        <div className="space-y-4">
           {isScannerActive ? (
             <div className="relative">
               <QuaggaScanner onDetected={handleBarcodeDetected} />
@@ -212,7 +216,7 @@ export default function ExpiryPage() {
             </div>
           ) : (
             <Button 
-              className="w-full" 
+              className="w-full rounded-full bg-primary hover:bg-primary/90" 
               onClick={() => setIsScannerActive(true)}
             >
               <Camera className="mr-2 h-4 w-4" />
@@ -223,42 +227,41 @@ export default function ExpiryPage() {
           <div className="relative">
             <form onSubmit={handleManualBarcodeSubmit} className="flex gap-2">
               <div className="relative flex-1">
-                <Barcode className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Barcode className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   ref={barcodeInputRef}
                   placeholder="Enter barcode manually"
-                  className="pl-8"
+                  className="pl-10 rounded-full"
                   value={scannedBarcode}
                   onChange={(e) => setScannedBarcode(e.target.value)}
                 />
               </div>
-              <Button type="submit" disabled={!scannedBarcode}>
+              <Button type="submit" disabled={!scannedBarcode} className="rounded-full">
                 Search
               </Button>
             </form>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
       
       {isLoading ? (
-        <Card>
-          <CardContent className="py-6">
-            <div className="flex items-center justify-center">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-              <p className="ml-2 text-sm text-muted-foreground">Loading product information...</p>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="bg-card rounded-xl border border-border shadow-sm p-6">
+          <div className="flex items-center justify-center py-8">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+            <p className="ml-3 text-muted-foreground">Loading product information...</p>
+          </div>
+        </div>
       ) : product ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Product Information</CardTitle>
-          </CardHeader>
+        <div className="bg-card rounded-xl border border-border shadow-sm p-6">
+          <h2 className="section-title mb-6">
+            <Check className="h-5 w-5 mr-2 text-primary" />
+            Product Information
+          </h2>
           
-          <CardContent className="space-y-4">
-            <div className="rounded-lg bg-muted p-4">
-              <div className="flex items-start gap-4">
-                <div className="relative h-20 w-20 overflow-hidden rounded-md bg-secondary">
+          <div className="space-y-6">
+            <div className="rounded-xl bg-muted/50 p-5">
+              <div className="flex items-start gap-5">
+                <div className="relative h-24 w-24 overflow-hidden rounded-lg bg-secondary">
                   {product.image_id ? (
                     <div className="relative h-full w-full">
                       {/* Placeholder as background for better UX */}
@@ -286,22 +289,34 @@ export default function ExpiryPage() {
                   )}
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold">{product.name}</h3>
-                  <p className="text-sm text-muted-foreground">Barcode: {product.barcode}</p>
-                  {product.price !== undefined && (
-                    <p className="text-sm text-muted-foreground">Price: {formatCurrency(product.price)}</p>
-                  )}
-                  {product.category && (
-                    <p className="text-sm text-muted-foreground">Category: {product.category}</p>
-                  )}
+                  <h3 className="text-lg font-semibold">{product.name}</h3>
+                  <div className="mt-2 space-y-1">
+                    <p className="flex justify-between">
+                      <span className="text-muted-foreground">Barcode:</span>
+                      <span className="font-medium">{product.barcode}</span>
+                    </p>
+                    {product.price !== undefined && (
+                      <p className="flex justify-between">
+                        <span className="text-muted-foreground">Price:</span>
+                        <span className="font-medium">{formatCurrency(product.price)}</span>
+                      </p>
+                    )}
+                    {product.category && (
+                      <p className="flex justify-between">
+                        <span className="text-muted-foreground">Category:</span>
+                        <span className="font-medium">{product.category}</span>
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
             
             <div className="space-y-4">
               <div className="space-y-2">
-                <label htmlFor="quantity" className="text-sm font-medium">
-                  Quantity
+                <label htmlFor="quantity" className="text-sm font-medium flex items-center">
+                  <span className="mr-1">Quantity</span>
+                  <span className="text-red-500">*</span>
                 </label>
                 <Input
                   id="quantity"
@@ -309,58 +324,62 @@ export default function ExpiryPage() {
                   min="1"
                   value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
+                  className="rounded-lg"
                   required
                 />
               </div>
               
               <div className="space-y-2">
-                <label htmlFor="expiryDate" className="text-sm font-medium">
-                  Expiry Date
+                <label htmlFor="expiryDate" className="text-sm font-medium flex items-center">
+                  <span className="mr-1">Expiry Date</span>
+                  <span className="text-red-500">*</span>
                 </label>
                 <Input
                   id="expiryDate"
                   type="date"
                   value={expiryDate}
                   onChange={(e) => setExpiryDate(e.target.value)}
+                  className="rounded-lg"
                   required
                 />
               </div>
             </div>
-          </CardContent>
+          </div>
           
-          <CardFooter className="flex justify-between">
-            <Button variant="outline" onClick={handleCancel}>
+          <div className="flex justify-between mt-8">
+            <Button variant="outline" onClick={handleCancel} className="rounded-full">
               <X className="mr-2 h-4 w-4" />
               Cancel
             </Button>
             
-            <Button onClick={handleSaveExpiry}>
+            <Button onClick={handleSaveExpiry} className="rounded-full bg-primary hover:bg-primary/90">
               <Check className="mr-2 h-4 w-4" />
               Save Expiry
             </Button>
-          </CardFooter>
-        </Card>
+          </div>
+        </div>
       ) : scannedBarcode ? (
-        <Card>
-          <CardContent className="py-6">
-            <div className="flex flex-col items-center justify-center text-center">
-              <AlertTriangle className="h-12 w-12 text-yellow-500" />
-              <h3 className="mt-2 text-lg font-semibold">Product Not Found</h3>
-              <p className="mt-1 text-sm text-muted-foreground">
-                No product found with barcode: {scannedBarcode}
-              </p>
-              <div className="mt-4 flex gap-2">
-                <Button variant="outline" onClick={handleCancel}>
-                  <X className="mr-2 h-4 w-4" />
-                  Cancel
-                </Button>
-                <Button onClick={() => router.push(`/dashboard/products?barcode=${scannedBarcode}`)}>
-                  Add Product
-                </Button>
-              </div>
+        <div className="bg-card rounded-xl border border-border shadow-sm p-8">
+          <div className="flex flex-col items-center justify-center text-center">
+            <AlertTriangle className="h-14 w-14 text-yellow-500" />
+            <h3 className="mt-4 text-lg font-semibold">Product Not Found</h3>
+            <p className="mt-2 text-muted-foreground max-w-xs mx-auto">
+              No product found with barcode: {scannedBarcode}
+            </p>
+            <div className="mt-6 flex gap-3">
+              <Button variant="outline" onClick={handleCancel} className="rounded-full">
+                <X className="mr-2 h-4 w-4" />
+                Cancel
+              </Button>
+              <Button 
+                onClick={() => router.push(`/dashboard/products?barcode=${scannedBarcode}`)}
+                className="rounded-full bg-primary hover:bg-primary/90"
+              >
+                Add Product
+              </Button>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       ) : null}
     </div>
   )

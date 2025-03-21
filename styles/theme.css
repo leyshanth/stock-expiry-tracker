@@ -1,0 +1,94 @@
+:root {
+  /* Primary brand color - a vibrant blue */
+  --primary: 230 60% 50%;
+  --primary-foreground: 0 0% 100%;
+  
+  /* Secondary accent color - a soft teal */
+  --secondary: 180 60% 45%;
+  --secondary-foreground: 0 0% 100%;
+  
+  /* Background colors */
+  --background: 0 0% 100%;
+  --foreground: 240 10% 10%;
+  
+  /* Card and container styles */
+  --card: 0 0% 100%;
+  --card-foreground: 240 10% 10%;
+  --card-border: 220 13% 91%;
+  --card-hover: 220 13% 95%;
+  
+  /* Input elements */
+  --input: 220 13% 95%;
+  --input-border: 220 13% 85%;
+  --input-foreground: 240 10% 10%;
+  
+  /* Status colors */
+  --success: 142 76% 36%;
+  --warning: 38 92% 50%;
+  --danger: 0 84% 60%;
+  --info: 199 89% 48%;
+  
+  /* Neutral colors */
+  --muted: 220 14% 96%;
+  --muted-foreground: 240 5% 50%;
+  --accent: 220 14% 96%;
+  --accent-foreground: 240 10% 10%;
+  
+  /* Border and shadow styles */
+  --border: 220 13% 91%;
+  --ring: 230 60% 50%;
+  --radius: 0.75rem;
+  
+  /* Expiry card colors */
+  --expiry-card-red-bg: 0 84% 95%;
+  --expiry-card-red-border: 0 84% 85%;
+  --expiry-card-yellow-bg: 38 92% 95%;
+  --expiry-card-yellow-border: 38 92% 85%;
+  --expiry-card-green-bg: 142 76% 95%;
+  --expiry-card-green-border: 142 76% 85%;
+}
+
+.dark {
+  --background: 240 10% 8%;
+  --foreground: 0 0% 95%;
+  
+  --card: 240 10% 12%;
+  --card-foreground: 0 0% 95%;
+  --card-border: 240 10% 18%;
+  --card-hover: 240 10% 20%;
+  
+  --input: 240 10% 16%;
+  --input-border: 240 10% 25%;
+  --input-foreground: 0 0% 95%;
+  
+  --muted: 240 10% 16%;
+  --muted-foreground: 240 5% 65%;
+  --accent: 240 10% 16%;
+  --accent-foreground: 0 0% 95%;
+  
+  --border: 240 10% 18%;
+  
+  /* Expiry card colors for dark mode */
+  --expiry-card-red-bg: 0 50% 15%;
+  --expiry-card-red-border: 0 50% 25%;
+  --expiry-card-yellow-bg: 38 50% 15%;
+  --expiry-card-yellow-border: 38 50% 25%;
+  --expiry-card-green-bg: 142 50% 15%;
+  --expiry-card-green-border: 142 50% 25%;
+}
+
+/* Custom card styles for expiry items */
+.expiry-card-red {
+  background-color: hsl(var(--expiry-card-red-bg));
+  border-color: hsl(var(--expiry-card-red-border));
+}
+
+.expiry-card-yellow {
+  background-color: hsl(var(--expiry-card-yellow-bg));
+  border-color: hsl(var(--expiry-card-yellow-border));
+}
+
+.expiry-card-green {
+  background-color: hsl(var(--expiry-card-green-bg));
+  border-color: hsl(var(--expiry-card-green-border));
+}

@@ -459,9 +459,9 @@ export default function ProductsPage() {
   }
 
   return (
-    <div className="container mx-auto max-w-4xl">
+    <div className="container mx-auto max-w-4xl py-8">
       <BackToTop />
-      <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+      <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center bg-gradient-to-r from-primary/10 to-secondary/10 p-6 rounded-2xl">
         <h1 className="text-2xl font-bold">Products</h1>
         
         <div className="flex flex-col gap-2 sm:flex-row">
@@ -513,24 +513,36 @@ export default function ProductsPage() {
       </div>
       
       {filteredProducts.length === 0 ? (
-        <div className="flex h-[60vh] flex-col items-center justify-center">
-          <Package className="h-16 w-16 text-muted-foreground" />
-          <h2 className="mt-4 text-xl font-semibold">
+        <div className="flex h-[60vh] flex-col items-center justify-center bg-muted/50 rounded-xl p-8">
+          <Package className="h-16 w-16 text-primary/60" />
+          <h2 className="mt-6 text-xl font-semibold">
             {products.length === 0
               ? "No products found"
               : "No products match your search"}
           </h2>
-          <p className="mt-2 text-center text-muted-foreground">
+          <p className="mt-3 text-center text-muted-foreground max-w-md">
             {products.length === 0
-              ? "Start by adding your first product"
-              : "Try a different search term"}
+              ? "Start by adding your first product to begin tracking inventory"
+              : "Try a different search term or clear your filters"}
           </p>
+          {products.length === 0 && (
+            <Button 
+              onClick={() => {
+                resetForm()
+                setIsAddDialogOpen(true)
+              }}
+              className="mt-6 rounded-full bg-primary hover:bg-primary/90"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Add First Product
+            </Button>
+          )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {filteredProducts.map((product) => (
-            <Card key={product.$id} className="overflow-hidden">
-              <div className="h-48 w-full overflow-hidden bg-gray-100">
+            <div key={product.$id} className="product-card">
+              <div className="product-image">
                 {product.image_id ? (
                   <div className="relative h-full w-full">
                     <img
@@ -550,51 +562,55 @@ export default function ProductsPage() {
                     />
                   </div>
                 ) : (
-                  <img
-                    src={'/placeholder-image.svg'}
-                    alt="No image available"
-                    className="h-full w-full object-cover"
-                  />
+                  <div className="flex h-full w-full items-center justify-center bg-muted">
+                    <img
+                      src={'/placeholder-image.svg'}
+                      alt="No image available"
+                      className="h-20 w-20 opacity-50"
+                    />
+                  </div>
                 )}
               </div>
               
-              <CardHeader>
-                <CardTitle className="line-clamp-1">{product.name}</CardTitle>
-              </CardHeader>
-              
-              <CardContent>
-                <div className="space-y-2 text-sm">
-                  <p><span className="font-medium">Barcode:</span> {product.barcode}</p>
-                  <p><span className="font-medium">Price:</span> {formatCurrency(product.price)}</p>
-                  {product.weight && (
-                    <p><span className="font-medium">Weight:</span> {product.weight}</p>
-                  )}
+              <div className="p-4">
+                <h3 className="text-lg font-semibold mb-3 line-clamp-1">{product.name}</h3>
+                
+                <div className="space-y-2 text-sm mb-4">
+                  <p className="flex justify-between">
+                    <span className="text-muted-foreground">Price:</span> 
+                    <span className="font-medium">{formatCurrency(product.price)}</span>
+                  </p>
+                  <p className="flex justify-between">
+                    <span className="text-muted-foreground">Barcode:</span> 
+                    <span className="font-medium">{product.barcode}</span>
+                  </p>
                   {product.category && (
-                    <p><span className="font-medium">Category:</span> {product.category}</p>
+                    <p className="flex justify-between">
+                      <span className="text-muted-foreground">Category:</span> 
+                      <span className="font-medium">{product.category}</span>
+                    </p>
                   )}
                 </div>
-              </CardContent>
-              
-              <CardFooter className="flex justify-between">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleEditClick(product)}
-                >
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit
-                </Button>
                 
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => handleDeleteProduct(product.$id!)}
-                >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Delete
-                </Button>
-              </CardFooter>
-            </Card>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleEditClick(product)}
+                    className="flex-1 py-2 rounded-full bg-muted hover:bg-accent text-foreground font-medium flex items-center justify-center transition-colors"
+                  >
+                    <Edit className="mr-2 h-4 w-4" />
+                    Edit
+                  </button>
+                  
+                  <button
+                    onClick={() => handleDeleteProduct(product.$id!)}
+                    className="flex-1 py-2 rounded-full bg-red-500 hover:bg-red-600 text-white font-medium flex items-center justify-center transition-colors"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
           ))}
         </div>
       )}

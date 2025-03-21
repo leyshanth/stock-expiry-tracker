@@ -1,30 +1,67 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import '../styles/theme.css';
 
 @layer components {
   .mobile-nav {
-    @apply fixed bottom-0 left-0 right-0 z-50 flex h-16 w-full items-center justify-around border-t bg-background px-2;
+    @apply fixed bottom-4 left-1/2 -translate-x-1/2 z-50 flex h-16 w-[95%] max-w-md items-center justify-around rounded-xl border border-border bg-card shadow-lg px-2;
   }
 
   .mobile-nav-item {
-    @apply flex flex-col items-center justify-center rounded-md p-2 text-xs text-muted-foreground transition-colors hover:text-foreground;
+    @apply flex flex-col items-center justify-center rounded-full p-2 text-xs text-muted-foreground transition-colors hover:text-foreground;
   }
 
   .mobile-nav-item.active {
-    @apply text-primary;
+    @apply text-primary font-medium;
+  }
+  
+  .mobile-nav-icon {
+    @apply h-5 w-5 mb-1;
   }
 
   .card-grid {
-    @apply grid gap-4 md:grid-cols-2 lg:grid-cols-3;
+    @apply grid gap-5 md:grid-cols-2 lg:grid-cols-3;
   }
 
   .dashboard-card {
-    @apply flex h-full flex-col justify-between;
+    @apply flex h-full flex-col justify-between rounded-xl overflow-hidden border-0 shadow-md transition-all duration-200 hover:shadow-lg;
+  }
+  
+  .product-card {
+    @apply flex h-full flex-col justify-between rounded-xl overflow-hidden border-0 shadow-md hover:shadow-lg transition-all duration-200;
+  }
+  
+  .product-image {
+    @apply h-48 w-full object-cover bg-muted;
   }
 
   .form-container {
     @apply mx-auto max-w-md space-y-6 p-4;
+  }
+  
+  .section-title {
+    @apply text-xl font-semibold mb-4 flex items-center;
+  }
+  
+  .filter-button {
+    @apply rounded-full px-4 py-2 text-sm font-medium transition-colors;
+  }
+  
+  .filter-button.active {
+    @apply bg-primary text-primary-foreground;
+  }
+  
+  .filter-button:not(.active) {
+    @apply bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground;
+  }
+  
+  .expiry-badge {
+    @apply absolute top-2 right-2 rounded-full px-3 py-1 text-xs font-medium shadow-sm;
+  }
+  
+  .action-button {
+    @apply rounded-full flex items-center justify-center transition-all duration-200;
   }
 }
 

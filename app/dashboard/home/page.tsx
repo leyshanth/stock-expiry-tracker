@@ -8,7 +8,7 @@ import { databaseService, ExpiryItem, Product } from "@/lib/appwrite/database-se
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { AlertTriangle, PlusCircle, Trash2, Filter } from "lucide-react"
+import { AlertTriangle, PlusCircle, Trash2, Filter, Calendar } from "lucide-react"
 import { format, differenceInDays, isToday, isTomorrow } from "date-fns"
 import { useToast } from "@/components/ui/use-toast"
 import { BackToTop } from "@/components/ui/back-to-top"
@@ -152,84 +152,79 @@ export default function HomePage() {
   }
 
   return (
-    <main className="container py-6 space-y-8">
+    <main className="container py-8 space-y-10">
       <BackToTop />
-      <div className="flex flex-col space-y-2">
+      <div className="flex flex-col space-y-3 bg-gradient-to-r from-primary/10 to-secondary/10 p-6 rounded-2xl">
         <h1 className="text-3xl font-bold">{greeting}, {user?.name || 'User'}</h1>
-        <p className="text-muted-foreground">
+        <p className="text-muted-foreground text-lg">
           Welcome to your Stock & Expiry Tracker dashboard.
         </p>
       </div>
 
       {/* Upcoming Expiry Items */}
-      <div className="space-y-4">
+      <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <h2 className="text-xl font-semibold">Upcoming Expiry Items</h2>
-          <div className="flex flex-wrap gap-2">
-            <div className="flex flex-wrap gap-2 mr-auto">
-              <Button 
-                variant={activeFilter === 'all' ? "default" : "outline"} 
-                size="sm"
-                onClick={() => setActiveFilter('all')}
-              >
-                All
-              </Button>
-              <Button 
-                variant={activeFilter === 'today' ? "default" : "outline"} 
-                size="sm"
-                onClick={() => setActiveFilter('today')}
-              >
-                Today
-              </Button>
-              <Button 
-                variant={activeFilter === 'tomorrow' ? "default" : "outline"} 
-                size="sm"
-                onClick={() => setActiveFilter('tomorrow')}
-              >
-                Tomorrow
-              </Button>
-              <Button 
-                variant={activeFilter === 'week' ? "default" : "outline"} 
-                size="sm"
-                onClick={() => setActiveFilter('week')}
-              >
-                This Week
-              </Button>
-              <Button 
-                variant={activeFilter === 'expired' ? "default" : "outline"} 
-                size="sm"
-                onClick={() => setActiveFilter('expired')}
-              >
-                Expired
-              </Button>
-            </div>
-            <Button asChild size="sm">
-              <Link href="/dashboard/expiry">
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Add Item
-              </Link>
-            </Button>
-          </div>
+          <h2 className="section-title">
+            <Calendar className="h-5 w-5 mr-2 text-primary" />
+            Upcoming Expiry Items
+          </h2>
+          <Button asChild size="sm" className="rounded-full bg-primary hover:bg-primary/90">
+            <Link href="/dashboard/expiry">
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Add Item
+            </Link>
+          </Button>
+        </div>
+        
+        <div className="flex flex-wrap gap-2 pb-4 overflow-x-auto whitespace-nowrap">
+          <button 
+            className={`filter-button ${activeFilter === 'all' ? 'active' : ''}`}
+            onClick={() => setActiveFilter('all')}
+          >
+            All Items
+          </button>
+          <button 
+            className={`filter-button ${activeFilter === 'today' ? 'active' : ''}`}
+            onClick={() => setActiveFilter('today')}
+          >
+            Expiring Today
+          </button>
+          <button 
+            className={`filter-button ${activeFilter === 'tomorrow' ? 'active' : ''}`}
+            onClick={() => setActiveFilter('tomorrow')}
+          >
+            Expiring Tomorrow
+          </button>
+          <button 
+            className={`filter-button ${activeFilter === 'week' ? 'active' : ''}`}
+            onClick={() => setActiveFilter('week')}
+          >
+            This Week
+          </button>
+          <button 
+            className={`filter-button ${activeFilter === 'expired' ? 'active' : ''}`}
+            onClick={() => setActiveFilter('expired')}
+          >
+            Expired
+          </button>
         </div>
         
         {getFilteredExpiryItems().length === 0 ? (
-          <Card>
-            <CardContent className="pt-6 text-center">
-              <AlertTriangle className="mx-auto h-12 w-12 text-yellow-500 mb-4" />
-              <h3 className="text-lg font-medium">No expiry items found</h3>
-              <p className="text-muted-foreground mt-2">Start tracking product expiry dates by adding items.</p>
-              <Button asChild className="mt-4">
-                <Link href="/dashboard/expiry">Add Expiry Item</Link>
-              </Button>
-            </CardContent>
-          </Card>
+          <div className="bg-muted/50 rounded-xl p-8 text-center">
+            <AlertTriangle className="mx-auto h-12 w-12 text-yellow-500 mb-4" />
+            <h3 className="text-lg font-medium">No expiry items found</h3>
+            <p className="text-muted-foreground mt-2">Start tracking product expiry dates by adding items.</p>
+            <Button asChild className="mt-6 rounded-full">
+              <Link href="/dashboard/expiry">Add Expiry Item</Link>
+            </Button>
+          </div>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {getFilteredExpiryItems().slice(0, 6).map((item) => {
               const { status, color, textColor } = getExpiryStatus(item.expiry_date)
               return (
-                <Card key={item.$id} className={`expiry-card ${color}`}>
-                  <div className="relative w-full h-40 overflow-hidden">
+                <div key={item.$id} className={`dashboard-card ${color} overflow-hidden`}>
+                  <div className="relative w-full h-48 overflow-hidden">
                     {item.product?.image_id ? (
                       <div className="relative h-full w-full">
                         <img
@@ -257,43 +252,37 @@ export default function HomePage() {
                         />
                       </div>
                     )}
-                    <Badge className={`${textColor} bg-white/90 absolute top-2 right-2 font-medium`}>
+                    <div className={`expiry-badge ${textColor} bg-white/90 backdrop-blur-sm`}>
                       {status}
-                    </Badge>
-                  </div>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg">
-                      {item.product?.name || "Unknown Product"}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="pb-2">
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div className="text-muted-foreground">Quantity:</div>
-                      <div>{item.quantity}</div>
-                      <div className="text-muted-foreground">Expiry Date:</div>
-                      <div>{format(new Date(item.expiry_date), "MMM d, yyyy")}</div>
                     </div>
-                  </CardContent>
-                  <CardFooter className="flex gap-2">
-                    <Button 
-                      variant="destructive" 
-                      size="sm"
+                  </div>
+                  <div className="p-4">
+                    <h3 className="text-lg font-semibold mb-2">
+                      {item.product?.name || "Unknown Product"}
+                    </h3>
+                    <div className="grid grid-cols-2 gap-2 text-sm mb-4">
+                      <div className="text-muted-foreground">Quantity:</div>
+                      <div className="font-medium">{item.quantity}</div>
+                      <div className="text-muted-foreground">Expiry Date:</div>
+                      <div className="font-medium">{format(new Date(item.expiry_date), "MMM d, yyyy")}</div>
+                    </div>
+                    <button 
                       onClick={() => item.$id ? handleDeleteItem(item.$id) : undefined}
-                      className="w-full"
+                      className="w-full py-2 px-4 rounded-full bg-red-500 hover:bg-red-600 text-white font-medium flex items-center justify-center transition-colors"
                     >
                       <Trash2 className="mr-2 h-4 w-4" />
                       Delete
-                    </Button>
-                  </CardFooter>
-                </Card>
+                    </button>
+                  </div>
+                </div>
               )
             })}
           </div>
         )}
         
         {getFilteredExpiryItems().length > 6 && (
-          <div className="text-center mt-4">
-            <Button asChild variant="outline">
+          <div className="text-center mt-6">
+            <Button asChild variant="outline" className="rounded-full px-6">
               <Link href="/dashboard/expiry">View All Expiry Items</Link>
             </Button>
           </div>
