@@ -228,6 +228,15 @@ export default function BarcodeScanner({
               Quagga.offProcessed();
               Quagga.stop();
               console.log("Quagga stopped after successful scan");
+              
+              // Also stop the camera stream
+              if (cameraStream) {
+                cameraStream.getTracks().forEach(track => {
+                  track.stop();
+                  console.log("Camera track stopped after successful scan");
+                });
+                setCameraStream(null);
+              }
             } catch (stopError) {
               console.error("Error stopping Quagga after scan:", stopError);
             }

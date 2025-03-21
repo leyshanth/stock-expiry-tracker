@@ -108,11 +108,18 @@ export default function ProductsPage() {
 
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!user) return
+    if (!user) {
+      console.error("Cannot add product: No authenticated user")
+      return
+    }
 
     try {
+      console.log("Starting product creation process...")
+      console.log("Form data:", { ...formData, image: formData.image ? "[File object]" : null })
+      
       // Validate form
       if (!formData.barcode || !formData.name) {
+        console.error("Validation failed: Missing barcode or name")
         toast({
           title: "Error",
           description: "Barcode and product name are required",
@@ -122,8 +129,10 @@ export default function ProductsPage() {
       }
 
       // Check if barcode already exists
+      console.log(`Checking if barcode ${formData.barcode} already exists...`)
       const existingProduct = await databaseService.getProductByBarcode(user.$id, formData.barcode)
       if (existingProduct) {
+        console.error(`Barcode ${formData.barcode} already exists for product: ${existingProduct.name}`)
         toast({
           title: "Error",
           description: "A product with this barcode already exists",
@@ -131,16 +140,25 @@ export default function ProductsPage() {
         })
         return
       }
+      console.log("Barcode check passed, product is unique")
 
       let imageId = undefined
 
       // Upload image if provided
       if (formData.image) {
-        imageId = await databaseService.uploadProductImage(formData.image, user.$id)
+        console.log("Uploading product image...")
+        try {
+          imageId = await databaseService.uploadProductImage(formData.image, user.$id)
+          console.log("Image uploaded successfully with ID:", imageId)
+        } catch (imageError) {
+          console.error("Failed to upload image:", imageError)
+          // Continue without image if upload fails
+        }
       }
 
       // Create product
-      const newProduct = await databaseService.createProduct({
+      console.log("Creating product in database...")
+      const productData = {
         user_id: user.$id,
         barcode: formData.barcode,
         name: formData.name,
@@ -148,7 +166,10 @@ export default function ProductsPage() {
         weight: formData.weight,
         category: formData.category,
         image_id: imageId,
-      })
+      }
+      console.log("Product data being sent to database:", productData)
+      
+      const newProduct = await databaseService.createProduct(productData)
 
       // Update state
       setProducts((prev) => [newProduct, ...prev])
