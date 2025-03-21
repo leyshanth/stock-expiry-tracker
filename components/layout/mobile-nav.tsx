@@ -36,11 +36,7 @@ export function MobileNav() {
       icon: Trash2,
       label: "Deleted",
     },
-    {
-      href: "/dashboard/about",
-      icon: Info,
-      label: "About",
-    },
+
     {
       href: "/settings/profile",
       icon: Settings,

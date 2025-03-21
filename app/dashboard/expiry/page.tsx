@@ -220,7 +220,7 @@ export default function ExpiryPage() {
               onClick={() => setIsScannerActive(true)}
             >
               <Camera className="mr-2 h-4 w-4" />
-              Open Camera Scanner
+              Scanner
             </Button>
           )}
           
@@ -261,33 +261,6 @@ export default function ExpiryPage() {
           <div className="space-y-6">
             <div className="rounded-xl bg-muted/50 p-5">
               <div className="flex items-start gap-5">
-                <div className="relative h-24 w-24 overflow-hidden rounded-lg bg-secondary">
-                  {product.image_id ? (
-                    <div className="relative h-full w-full">
-                      {/* Placeholder as background for better UX */}
-                      <img
-                        src="/placeholder-image.svg"
-                        alt="Placeholder"
-                        className="absolute h-full w-full object-cover"
-                      />
-                      <img
-                        src={databaseService.getFilePreview(product.image_id)}
-                        alt={product.name}
-                        className="absolute h-full w-full object-cover"
-                        onError={(e) => {
-                          // Hide the errored image to show placeholder
-                          (e.target as HTMLImageElement).style.display = 'none';
-                        }}
-                      />
-                    </div>
-                  ) : (
-                    <img
-                      src="/placeholder-image.svg"
-                      alt="No image available"
-                      className="h-full w-full object-cover"
-                    />
-                  )}
-                </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-semibold">{product.name}</h3>
                   <div className="mt-2 space-y-1">

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ArrowLeft, User, Settings, LogOut } from 'lucide-react';
+import { ArrowLeft, User, Settings, LogOut, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/lib/hooks/use-auth';
 
@@ -37,6 +37,13 @@ export default function SettingsLayout({
             >
               <Settings className="mr-2 h-4 w-4" />
               General Settings
+            </Link>
+            <Link
+              href="/settings/about"
+              className="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-secondary"
+            >
+              <Info className="mr-2 h-4 w-4" />
+              About
             </Link>
             
             <div className="pt-6 mt-6 border-t border-border">
