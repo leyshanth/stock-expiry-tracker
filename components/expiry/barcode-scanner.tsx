@@ -29,13 +29,37 @@ export default function BarcodeScanner({
   useEffect(() => {
     const handleEscKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && onClose) {
-        onClose();
+        handleClose();
       }
     };
     
     window.addEventListener('keydown', handleEscKey);
     return () => window.removeEventListener('keydown', handleEscKey);
   }, [onClose]);
+  
+  // Function to properly clean up resources and close the scanner
+  const handleClose = () => {
+    // Stop the camera stream
+    if (cameraStream) {
+      cameraStream.getTracks().forEach(track => track.stop());
+      setCameraStream(null);
+    }
+    
+    // Stop Quagga if it's running
+    try {
+      Quagga.offDetected();
+      Quagga.offProcessed();
+      Quagga.stop();
+      console.log("Camera and scanner stopped on close");
+    } catch (e) {
+      console.error("Error stopping Quagga:", e);
+    }
+    
+    // Call the onClose callback
+    if (onClose) {
+      onClose();
+    }
+  };
 
   // Initialize scanner when component mounts
   useEffect(() => {
@@ -135,33 +159,36 @@ export default function BarcodeScanner({
         
         console.log("Initializing Quagga with target:", scannerRef.current);
         
-        // Initialize with more specific configuration but with more flexible camera constraints
+        // Initialize with optimized configuration for faster barcode detection
         await Quagga.init({
           inputStream: {
             name: "Live",
             type: "LiveStream",
             target: scannerRef.current,
             constraints: {
-              width: { min: 320, ideal: 640, max: 1280 },
-              height: { min: 240, ideal: 480, max: 720 },
-              facingMode: "environment" // Allow fallback to front camera if needed
+              width: { min: 1280, ideal: 1920, max: 2560 }, // Higher resolution for better detection
+              height: { min: 720, ideal: 1080, max: 1440 },
+              facingMode: "environment", // Allow fallback to front camera if needed
+              aspectRatio: { ideal: 1.777778 }, // 16:9 aspect ratio
             },
-            area: { // Define scan area for better performance
-              top: "25%",    // top offset
-              right: "10%",  // right offset
-              left: "10%",   // left offset
-              bottom: "25%", // bottom offset
+            area: { // Define smaller scan area for better performance
+              top: "30%",    // top offset
+              right: "20%",  // right offset
+              left: "20%",   // left offset
+              bottom: "30%", // bottom offset
             },
             willReadFrequently: true
             // Note: We'll use scannerRef as the target, not videoRef
           },
           locator: {
-            patchSize: "medium",
+            patchSize: "large", // Use larger patches for better detection
             halfSample: true
           },
           numOfWorkers: 2,
           decoder: {
-            readers: ["ean_reader", "ean_8_reader", "code_128_reader", "upc_reader", "upc_e_reader"]
+            readers: ["ean_reader", "ean_8_reader", "code_128_reader", "upc_reader", "upc_e_reader"],
+            multiple: false, // Only detect one barcode at a time
+            // Note: Using only properties supported by the type definition
           },
           locate: true
         });
@@ -298,7 +325,10 @@ export default function BarcodeScanner({
       try {
         // Clean up camera stream if it exists
         if (cameraStream) {
-          cameraStream.getTracks().forEach(track => track.stop());
+          cameraStream.getTracks().forEach(track => {
+            track.stop();
+            console.log("Camera track stopped during cleanup");
+          });
           setCameraStream(null);
         }
         
@@ -307,6 +337,7 @@ export default function BarcodeScanner({
           quaggaInstance.offDetected();
           quaggaInstance.offProcessed();
           quaggaInstance.stop();
+          console.log("Quagga stopped during cleanup");
         }
       } catch (e) {
         console.error("Error during cleanup:", e);
@@ -338,11 +369,9 @@ export default function BarcodeScanner({
               Position the barcode within the scanner area
             </p>
           </div>
-          {onClose && (
-            <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8">
-              <X className="h-4 w-4" />
-            </Button>
-          )}
+          <Button variant="ghost" size="icon" onClick={handleClose} className="h-8 w-8">
+            <X className="h-4 w-4" />
+          </Button>
         </div>
         
         {/* Direct video element as fallback */}
@@ -403,18 +432,24 @@ export default function BarcodeScanner({
             }}
           >
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-4/5 h-1/3 border-2 border-red-500 border-dashed rounded-lg"></div>
+              <div className="w-3/5 h-1/4 border-2 border-red-500 border-dashed rounded-lg">
+                {/* Add crosshair for better targeting */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-1/2 h-0.5 bg-red-500"></div>
+                </div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-0.5 h-1/2 bg-red-500"></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
         
         <div className="p-4 flex justify-between">
-          {onClose && (
-            <Button variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
-          )}
-          <Button onClick={handleManualEntry} className={cn("ml-auto", onClose ? "" : "w-full")}>
+          <Button variant="outline" onClick={handleClose}>
+            Cancel
+          </Button>
+          <Button onClick={handleManualEntry} className="ml-auto">
             Enter Manually
           </Button>
           <Button onClick={simulateScan} variant="secondary" className="ml-2">
