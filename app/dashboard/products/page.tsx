@@ -529,18 +529,31 @@ export default function ProductsPage() {
           {filteredProducts.map((product) => (
             <Card key={product.$id} className="overflow-hidden">
               <div className="h-48 w-full overflow-hidden bg-gray-100">
-                <Image
-                  src={product.image_id ? databaseService.getFilePreview(product.image_id) : '/placeholder-image.svg'}
-                  alt={product.name}
-                  width={400}
-                  height={300}
-                  className="h-full w-full object-cover"
-                  onError={(e) => {
-                    // If image fails to load, replace with placeholder
-                    const target = e.target as HTMLImageElement;
-                    target.src = '/placeholder-image.svg';
-                  }}
-                />
+                {product.image_id ? (
+                  <div className="relative h-full w-full">
+                    <img
+                      src={'/placeholder-image.svg'}
+                      alt={product.name}
+                      className="absolute h-full w-full object-cover"
+                    />
+                    <img
+                      src={databaseService.getFilePreview(product.image_id)}
+                      alt={product.name}
+                      className="relative h-full w-full object-cover"
+                      onError={(e) => {
+                        // If image fails to load, hide it and show only the placeholder
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <img
+                    src={'/placeholder-image.svg'}
+                    alt="No image available"
+                    className="h-full w-full object-cover"
+                  />
+                )}
               </div>
               
               <CardHeader>

@@ -319,21 +319,18 @@ export class DatabaseService {
     }
     
     try {
-      console.log(`Getting file preview for file ID: ${fileId}`);
-      // Create the preview URL
-      const previewUrl = storage.getFilePreview(
-        BUCKET_ID,
-        fileId,
-        2000, // width
-        2000, // height
-        'center', // gravity
-        100 // quality
-      ).href;
+      // Use a direct URL format to access the file
+      // This avoids issues with the preview endpoint
+      const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1';
+      const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID || '';
       
-      console.log(`Generated preview URL: ${previewUrl}`);
-      return previewUrl;
+      // Direct URL format to the file
+      const directUrl = `${endpoint}/storage/buckets/${BUCKET_ID}/files/${fileId}/view?project=${projectId}`;
+      
+      console.log(`Generated direct file URL: ${directUrl}`);
+      return directUrl;
     } catch (error) {
-      console.error('Error generating file preview URL:', error);
+      console.error('Error generating file URL:', error);
       // Return a placeholder image URL if there's an error
       return '/placeholder-image.svg';
     }
