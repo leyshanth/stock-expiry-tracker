@@ -2,6 +2,37 @@ import { format } from 'date-fns';
 import { ExpiryItem } from '../appwrite/database-service';
 
 /**
+ * Exports data to CSV and triggers download
+ * @param data Array of objects to export
+ * @param filename Name of the file without extension
+ */
+export function exportToCsv(data: any[], filename: string): void {
+  // Convert object array to CSV string
+  const headers = Object.keys(data[0]);
+  
+  // Create CSV header row
+  let csvContent = headers.join(',') + '\n';
+  
+  // Add data rows
+  data.forEach(item => {
+    const row = headers.map(header => {
+      const value = item[header]?.toString() || '';
+      // If value contains comma, quote, or newline, wrap it in quotes
+      if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+        // Double up any quotes
+        return `"${value.replace(/"/g, '""')}"`;
+      }
+      return value;
+    });
+    
+    csvContent += row.join(',') + '\n';
+  });
+  
+  // Trigger download
+  downloadCSV(csvContent, filename);
+}
+
+/**
  * Converts an array of expiry items to CSV format
  * @param items Array of expiry items to convert
  * @returns CSV string
