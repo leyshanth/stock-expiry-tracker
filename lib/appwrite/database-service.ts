@@ -291,12 +291,11 @@ export class DatabaseService {
   async uploadProductImage(file: File, userId: string): Promise<string> {
     try {
       const fileId = ID.unique();
+      // Upload file without specifying permissions to use bucket default permissions
       await storage.createFile(
         BUCKET_ID,
         fileId,
-        file,
-        // Use correct permission format: 'read', 'write', 'update', 'delete'
-        ['read', 'write'], // Allow reading and writing
+        file
       );
       return fileId;
     } catch (error) {
