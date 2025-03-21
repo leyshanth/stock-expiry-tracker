@@ -11,8 +11,8 @@ export function cn(...inputs: ClassValue[]) {
  * @param currency - The currency code (default: USD)
  * @returns Formatted currency string
  */
-export function formatCurrency(value: number, currency: string = 'USD'): string {
-  return new Intl.NumberFormat('en-US', {
+export function formatCurrency(value: number, currency: string = 'GBP'): string {
+  return new Intl.NumberFormat('en-GB', {
     style: 'currency',
     currency,
     minimumFractionDigits: 2,

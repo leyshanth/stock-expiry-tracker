@@ -10,6 +10,8 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { useToast } from "@/components/ui/use-toast"
 import { Barcode, Camera, Check, X, AlertTriangle } from "lucide-react"
 import { format } from "date-fns"
+import Image from "next/image"
+import { formatCurrency } from "@/lib/utils"
 
 // Import Quagga dynamically since it's a client-side only library
 import dynamic from "next/dynamic"
@@ -255,11 +257,45 @@ export default function ExpiryPage() {
           
           <CardContent className="space-y-4">
             <div className="rounded-lg bg-muted p-4">
-              <h3 className="font-semibold">{product.name}</h3>
-              <p className="text-sm text-muted-foreground">Barcode: {product.barcode}</p>
-              {product.category && (
-                <p className="text-sm text-muted-foreground">Category: {product.category}</p>
-              )}
+              <div className="flex items-start gap-4">
+                <div className="relative h-20 w-20 overflow-hidden rounded-md bg-secondary">
+                  {product.image_id ? (
+                    <div className="relative h-full w-full">
+                      {/* Placeholder as background for better UX */}
+                      <img
+                        src="/placeholder-image.svg"
+                        alt="Placeholder"
+                        className="absolute h-full w-full object-cover"
+                      />
+                      <img
+                        src={databaseService.getFilePreview(product.image_id)}
+                        alt={product.name}
+                        className="absolute h-full w-full object-cover"
+                        onError={(e) => {
+                          // Hide the errored image to show placeholder
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <img
+                      src="/placeholder-image.svg"
+                      alt="No image available"
+                      className="h-full w-full object-cover"
+                    />
+                  )}
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold">{product.name}</h3>
+                  <p className="text-sm text-muted-foreground">Barcode: {product.barcode}</p>
+                  {product.price !== undefined && (
+                    <p className="text-sm text-muted-foreground">Price: {formatCurrency(product.price)}</p>
+                  )}
+                  {product.category && (
+                    <p className="text-sm text-muted-foreground">Category: {product.category}</p>
+                  )}
+                </div>
+              </div>
             </div>
             
             <div className="space-y-4">
