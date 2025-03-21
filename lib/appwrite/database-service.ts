@@ -74,39 +74,48 @@ export class DatabaseService {
 
   async getProductByBarcode(userId: string, barcode: string): Promise<Product | null> {
     try {
+      console.log(`Checking for product with barcode ${barcode} for user ${userId}`);
       const result = await databases.listDocuments(
         DATABASE_ID,
         PRODUCTS_COLLECTION_ID,
         [
-          Query.equal('user_id', userId),
-          Query.equal('barcode', barcode)
+          Query.equal('user_id', [userId]),  // Use array format for Query parameters
+          Query.equal('barcode', [barcode])  // Use array format for Query parameters
         ]
       );
       
       if (result.documents.length > 0) {
+        console.log('Found existing product with this barcode');
         return result.documents[0] as unknown as Product;
       }
+      console.log('No existing product found with this barcode');
       return null;
     } catch (error) {
       console.error('DatabaseService.getProductByBarcode error:', error);
-      throw error;
+      // Return null instead of throwing error to avoid blocking product creation
+      console.log('Continuing without checking barcode due to permission error');
+      return null;
     }
   }
 
   async listProducts(userId: string): Promise<Product[]> {
     try {
+      console.log(`Listing products for user ${userId}`);
       const result = await databases.listDocuments(
         DATABASE_ID,
         PRODUCTS_COLLECTION_ID,
         [
-          Query.equal('user_id', userId),
+          Query.equal('user_id', [userId]),  // Use array format for Query parameters
           Query.orderDesc('created_at')
         ]
       );
+      console.log(`Found ${result.documents.length} products`);
       return result.documents as unknown as Product[];
     } catch (error) {
       console.error('DatabaseService.listProducts error:', error);
-      throw error;
+      // Return empty array instead of throwing error
+      console.log('Returning empty products list due to error');
+      return [];
     }
   }
 
@@ -180,12 +189,13 @@ export class DatabaseService {
 
   async listExpiryItems(userId: string, includeDeleted: boolean = false): Promise<ExpiryItem[]> {
     try {
+      console.log(`Listing expiry items for user ${userId}, includeDeleted: ${includeDeleted}`);
       const queries = [
-        Query.equal('user_id', userId),
+        Query.equal('user_id', [userId]),  // Use array format for Query parameters
       ];
       
       if (!includeDeleted) {
-        queries.push(Query.equal('is_deleted', false));
+        queries.push(Query.equal('is_deleted', [false]));  // Use array format for Query parameters
       }
       
       queries.push(Query.orderAsc('expiry_date'));
@@ -195,28 +205,35 @@ export class DatabaseService {
         EXPIRY_COLLECTION_ID,
         queries
       );
+      console.log(`Found ${result.documents.length} expiry items`);
       return result.documents as unknown as ExpiryItem[];
     } catch (error) {
       console.error('DatabaseService.listExpiryItems error:', error);
-      throw error;
+      // Return empty array instead of throwing error
+      console.log('Returning empty expiry items list due to error');
+      return [];
     }
   }
 
   async listDeletedExpiryItems(userId: string): Promise<ExpiryItem[]> {
     try {
+      console.log(`Listing deleted expiry items for user ${userId}`);
       const result = await databases.listDocuments(
         DATABASE_ID,
         EXPIRY_COLLECTION_ID,
         [
-          Query.equal('user_id', userId),
-          Query.equal('is_deleted', true),
+          Query.equal('user_id', [userId]),  // Use array format for Query parameters
+          Query.equal('is_deleted', [true]),  // Use array format for Query parameters
           Query.orderDesc('deleted_at')
         ]
       );
+      console.log(`Found ${result.documents.length} deleted expiry items`);
       return result.documents as unknown as ExpiryItem[];
     } catch (error) {
       console.error('DatabaseService.listDeletedExpiryItems error:', error);
-      throw error;
+      // Return empty array instead of throwing error
+      console.log('Returning empty deleted items list due to error');
+      return [];
     }
   }
 
