@@ -32,6 +32,14 @@ export class DatabaseService {
   // Products CRUD operations
   async createProduct(product: Omit<Product, '$id' | 'created_at' | 'updated_at'>): Promise<Product> {
     try {
+      // First check if a product with this barcode already exists globally
+      const existingProduct = await this.getProductByBarcode('', product.barcode);
+      
+      if (existingProduct) {
+        console.log(`Product with barcode ${product.barcode} already exists globally, returning existing product`);
+        return existingProduct;
+      }
+      
       const now = new Date();
       
       // Store price as a float value
@@ -74,12 +82,12 @@ export class DatabaseService {
 
   async getProductByBarcode(userId: string, barcode: string): Promise<Product | null> {
     try {
-      console.log(`Checking for product with barcode ${barcode} for user ${userId}`);
+      console.log(`Checking for product with barcode ${barcode} globally`);
+      // Search for the product globally without user_id filter
       const result = await databases.listDocuments(
         DATABASE_ID,
         PRODUCTS_COLLECTION_ID,
         [
-          Query.equal('user_id', [userId]),  // Use array format for Query parameters
           Query.equal('barcode', [barcode])  // Use array format for Query parameters
         ]
       );
@@ -100,12 +108,12 @@ export class DatabaseService {
 
   async listProducts(userId: string): Promise<Product[]> {
     try {
-      console.log(`Listing products for user ${userId}`);
+      console.log(`Listing all products globally`);
+      // List all products without filtering by user_id
       const result = await databases.listDocuments(
         DATABASE_ID,
         PRODUCTS_COLLECTION_ID,
         [
-          Query.equal('user_id', [userId]),  // Use array format for Query parameters
           Query.orderDesc('created_at')
         ]
       );
