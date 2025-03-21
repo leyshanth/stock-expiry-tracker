@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { authService } from "@/lib/appwrite/auth-service";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle, XCircle } from "lucide-react";
 import Link from "next/link";
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
@@ -78,6 +78,38 @@ export default function VerifyEmailPage() {
               </Link>
             </Button>
           )}
+        </CardFooter>
+      </Card>
+    </div>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={<VerifyEmailFallback />}>
+      <VerifyEmailContent />
+    </Suspense>
+  );
+}
+
+function VerifyEmailFallback() {
+  return (
+    <div className="container flex items-center justify-center min-h-screen py-12">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle>Email Verification</CardTitle>
+          <CardDescription>Verifying your email address...</CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col items-center justify-center py-6">
+          <div className="flex items-center justify-center w-12 h-12 rounded-full bg-muted">
+            <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+          </div>
+          <p className="mt-4 text-center text-sm text-muted-foreground">
+            Please wait while we verify your email address...
+          </p>
+        </CardContent>
+        <CardFooter className="flex justify-center">
+          <Button disabled>Please wait...</Button>
         </CardFooter>
       </Card>
     </div>

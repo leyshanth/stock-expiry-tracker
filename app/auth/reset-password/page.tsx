@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { authService } from "@/lib/appwrite/auth-service";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import Link from "next/link";
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
@@ -155,6 +155,38 @@ export default function ResetPasswordPage() {
           </Button>
         </CardFooter>
       </form>
+    </Card>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<ResetPasswordFallback />}>
+      <ResetPasswordContent />
+    </Suspense>
+  );
+}
+
+function ResetPasswordFallback() {
+  return (
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle>Reset Password</CardTitle>
+        <CardDescription>
+          Loading reset password form...
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-col items-center justify-center py-6">
+        <div className="flex items-center justify-center w-12 h-12 rounded-full bg-muted">
+          <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+        </div>
+        <p className="mt-4 text-center text-sm text-muted-foreground">
+          Please wait while we load the reset password form...
+        </p>
+      </CardContent>
+      <CardFooter>
+        <Button disabled className="w-full">Please wait...</Button>
+      </CardFooter>
     </Card>
   );
 }
