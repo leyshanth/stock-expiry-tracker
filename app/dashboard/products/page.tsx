@@ -16,7 +16,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 
 // Import Quagga dynamically since it's a client-side only library
 import dynamic from "next/dynamic"
-const QuaggaScanner = dynamic(() => import("@/components/expiry/barcode-scanner"), {
+const QuaggaScanner = dynamic(() => import("@/components/products/barcode-scanner"), {
   ssr: false,
   loading: () => (
     <div className="flex h-64 items-center justify-center rounded-lg border border-dashed">
@@ -530,7 +530,7 @@ export default function ProductsPage() {
                     setIsScannerDialogOpen(true)
                   }}
                 >
-                  <Camera className="mr-1 h-3 w-3" />
+                  <Barcode className="mr-1 h-3 w-3" />
                   Scan
                 </Button>
               </div>
@@ -639,7 +639,7 @@ export default function ProductsPage() {
                     setIsScannerDialogOpen(true)
                   }}
                 >
-                  <Camera className="mr-1 h-3 w-3" />
+                  <Barcode className="mr-1 h-3 w-3" />
                   Scan
                 </Button>
               </div>
@@ -743,55 +743,53 @@ export default function ProductsPage() {
         setIsScannerDialogOpen(open)
         if (!open) setIsScannerActive(false)
       }}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Scan Product Barcode</DialogTitle>
-            <DialogDescription>
-              Position the barcode within the scanner area.
-            </DialogDescription>
-          </DialogHeader>
-          
-          {isScannerActive ? (
-            <div className="relative">
-              <QuaggaScanner 
-                onDetected={handleBarcodeDetected} 
-                onError={handleScannerError} 
-              />
-              <Button
-                variant="outline"
-                size="sm"
-                className="absolute bottom-2 right-2"
-                onClick={() => setIsScannerActive(false)}
-              >
-                <X className="mr-2 h-4 w-4" />
-                Cancel
-              </Button>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {scannerError && (
-                <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-                  <p>{scannerError}</p>
-                </div>
-              )}
+        <DialogContent className="sm:max-w-md p-0">
+          <div className="relative">
+            <div className="p-4 border-b flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-semibold">Scan Barcode</h2>
+                <p className="text-sm text-muted-foreground">
+                  Position the barcode within the scanner area
+                </p>
+              </div>
               <Button 
-                className="w-full" 
-                onClick={() => {
-                  setIsScannerActive(true)
-                  setScannerError(null)
-                }}
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setIsScannerDialogOpen(false)} 
+                className="h-8 w-8"
               >
-                <Camera className="mr-2 h-4 w-4" />
-                Start Scanner
+                <X className="h-4 w-4" />
               </Button>
             </div>
-          )}
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsScannerDialogOpen(false)}>
-              Close
-            </Button>
-          </DialogFooter>
+            
+            {isScannerActive ? (
+              <div className="relative h-64 md:h-80">
+                <QuaggaScanner 
+                  onDetected={handleBarcodeDetected} 
+                  onError={handleScannerError}
+                  onClose={() => setIsScannerDialogOpen(false)}
+                />
+              </div>
+            ) : (
+              <div className="p-4 space-y-4">
+                {scannerError && (
+                  <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+                    <p>{scannerError}</p>
+                  </div>
+                )}
+                <Button 
+                  className="w-full" 
+                  onClick={() => {
+                    setIsScannerActive(true)
+                    setScannerError(null)
+                  }}
+                >
+                  <Camera className="mr-2 h-4 w-4" />
+                  Start Scanner
+                </Button>
+              </div>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
 
@@ -803,65 +801,78 @@ export default function ProductsPage() {
           setScannerError(null)
         }
       }}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Scan to Find Product</DialogTitle>
-            <DialogDescription>
-              Scan a barcode to quickly find or add a product.
-            </DialogDescription>
-          </DialogHeader>
-          
-          {isScannerActive ? (
-            <div className="relative">
-              <QuaggaScanner 
-                onDetected={handleBarcodeDetected} 
-                onError={handleScannerError} 
-              />
-              <Button
-                variant="outline"
-                size="sm"
-                className="absolute bottom-2 right-2"
-                onClick={() => setIsScannerActive(false)}
+        <DialogContent className="sm:max-w-md p-0">
+          <div className="relative">
+            <div className="p-4 border-b flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-semibold">Scan Barcode</h2>
+                <p className="text-sm text-muted-foreground">
+                  Position the barcode within the scanner area
+                </p>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setIsQuickScannerOpen(false)} 
+                className="h-8 w-8"
               >
-                <X className="mr-2 h-4 w-4" />
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            
+            {isScannerActive ? (
+              <div className="relative h-64 md:h-80">
+                <QuaggaScanner 
+                  onDetected={handleBarcodeDetected} 
+                  onError={handleScannerError}
+                  onClose={() => setIsQuickScannerOpen(false)}
+                />
+              </div>
+            ) : (
+              <div className="p-4 space-y-4">
+                {scannerError && (
+                  <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+                    <p>{scannerError}</p>
+                  </div>
+                )}
+                <Button 
+                  className="w-full" 
+                  onClick={() => {
+                    setIsScannerActive(true)
+                    setScannerError(null)
+                  }}
+                  disabled={isSearchingBarcode}
+                >
+                  {isSearchingBarcode ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Searching...
+                    </>
+                  ) : (
+                    <>
+                      <Camera className="mr-2 h-4 w-4" />
+                      Start Scanner
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
+            
+            <div className="p-4 flex justify-between border-t">
+              <Button variant="outline" onClick={() => setIsQuickScannerOpen(false)}>
                 Cancel
               </Button>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {scannerError && (
-                <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-                  <p>{scannerError}</p>
-                </div>
-              )}
               <Button 
-                className="w-full" 
+                variant="secondary" 
                 onClick={() => {
-                  setIsScannerActive(true)
-                  setScannerError(null)
+                  // Simulate a test scan
+                  handleBarcodeDetected('123456789012');
                 }}
-                disabled={isSearchingBarcode}
               >
-                {isSearchingBarcode ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Searching...
-                  </>
-                ) : (
-                  <>
-                    <Camera className="mr-2 h-4 w-4" />
-                    Start Scanner
-                  </>
-                )}
+                Test Scan
               </Button>
             </div>
-          )}
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsQuickScannerOpen(false)}>
-              Close
-            </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
