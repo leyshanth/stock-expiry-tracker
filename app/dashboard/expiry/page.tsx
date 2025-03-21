@@ -301,6 +301,12 @@ export default function ExpiryPage() {
                         <span className="font-medium">{formatCurrency(product.price)}</span>
                       </p>
                     )}
+                    {product.weight && (
+                      <p className="flex justify-between">
+                        <span className="text-muted-foreground">Weight:</span>
+                        <span className="font-medium">{product.weight}</span>
+                      </p>
+                    )}
                     {product.category && (
                       <p className="flex justify-between">
                         <span className="text-muted-foreground">Category:</span>
@@ -310,6 +316,28 @@ export default function ExpiryPage() {
                   </div>
                 </div>
               </div>
+              
+              {/* Product image in larger view */}
+              {product.image_id && (
+                <div className="mt-4 flex justify-center">
+                  <div className="relative h-48 w-full max-w-xs overflow-hidden rounded-lg bg-secondary">
+                    <img
+                      src="/placeholder-image.svg"
+                      alt="Placeholder"
+                      className="absolute h-full w-full object-contain"
+                    />
+                    <img
+                      src={databaseService.getFilePreview(product.image_id)}
+                      alt={product.name}
+                      className="absolute h-full w-full object-contain"
+                      onError={(e) => {
+                        // Hide the errored image to show placeholder
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
             
             <div className="space-y-4">

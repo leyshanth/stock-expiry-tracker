@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation"
 import Link from "next/link"
-import { Home, Package, Calendar, Trash2, Settings } from "lucide-react"
+import { Home, Package, Calendar, Trash2, Settings, Info } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useEffect, useState } from "react"
 
@@ -35,6 +35,11 @@ export function MobileNav() {
       href: "/dashboard/deleted",
       icon: Trash2,
       label: "Deleted",
+    },
+    {
+      href: "/dashboard/about",
+      icon: Info,
+      label: "About",
     },
     {
       href: "/settings/profile",
