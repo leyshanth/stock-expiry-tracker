@@ -39,26 +39,37 @@ export default function BarcodeScanner({
   
   // Function to properly clean up resources and close the scanner
   const handleClose = () => {
+    // First remove all event listeners to prevent any further processing
+    try {
+      Quagga.offDetected();
+      Quagga.offProcessed();
+    } catch (e) {
+      // Ignore - might not be initialized
+    }
+    
     // Stop the camera stream
     if (cameraStream) {
-      cameraStream.getTracks().forEach(track => track.stop());
+      cameraStream.getTracks().forEach(track => {
+        track.stop();
+        console.log("Camera track stopped on close");
+      });
       setCameraStream(null);
     }
     
     // Stop Quagga if it's running
     try {
-      Quagga.offDetected();
-      Quagga.offProcessed();
       Quagga.stop();
       console.log("Camera and scanner stopped on close");
     } catch (e) {
       console.error("Error stopping Quagga:", e);
     }
     
-    // Call the onClose callback
-    if (onClose) {
-      onClose();
-    }
+    // Call the onClose callback after a small delay to ensure cleanup completes
+    setTimeout(() => {
+      if (onClose) {
+        onClose();
+      }
+    }, 100);
   };
 
   // Initialize scanner when component mounts
@@ -224,8 +235,11 @@ export default function BarcodeScanner({
             
             // Stop Quagga after successful scan
             try {
+              // Remove event listeners first to prevent multiple detections
               Quagga.offDetected();
               Quagga.offProcessed();
+              
+              // Stop Quagga
               Quagga.stop();
               console.log("Quagga stopped after successful scan");
               
@@ -237,11 +251,17 @@ export default function BarcodeScanner({
                 });
                 setCameraStream(null);
               }
+              
+              // Add a small delay before calling onDetected to ensure cleanup completes
+              setTimeout(() => {
+                onDetected(code);
+              }, 100);
+              
+              // Return early to prevent the onDetected call at the end
+              return;
             } catch (stopError) {
               console.error("Error stopping Quagga after scan:", stopError);
             }
-            
-            onDetected(code);
           }
         });
         
@@ -332,21 +352,28 @@ export default function BarcodeScanner({
     return () => {
       mounted = false;
       try {
+        // First remove all event listeners
+        try {
+          Quagga.offDetected();
+          Quagga.offProcessed();
+        } catch (e) {
+          // Ignore - might not be initialized
+        }
+        
         // Clean up camera stream if it exists
         if (cameraStream) {
           cameraStream.getTracks().forEach(track => {
             track.stop();
             console.log("Camera track stopped during cleanup");
           });
-          setCameraStream(null);
         }
         
         // Clean up Quagga
-        if (quaggaInstance) {
-          quaggaInstance.offDetected();
-          quaggaInstance.offProcessed();
-          quaggaInstance.stop();
+        try {
+          Quagga.stop();
           console.log("Quagga stopped during cleanup");
+        } catch (e) {
+          // Ignore - might not be initialized
         }
       } catch (e) {
         console.error("Error during cleanup:", e);
