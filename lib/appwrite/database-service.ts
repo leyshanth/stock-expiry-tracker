@@ -295,8 +295,8 @@ export class DatabaseService {
         BUCKET_ID,
         fileId,
         file,
-        // Use updated permission format: 'any', 'users', 'guests'
-        ['any'], // Allow reading and writing by anyone (simpler permissions model)
+        // Use correct permission format: 'read', 'write', 'update', 'delete'
+        ['read', 'write'], // Allow reading and writing
       );
       return fileId;
     } catch (error) {
