@@ -305,14 +305,28 @@ export class DatabaseService {
   }
 
   getFilePreview(fileId: string): string {
-    return storage.getFilePreview(
-      BUCKET_ID,
-      fileId,
-      2000, // width
-      2000, // height
-      'center', // gravity
-      100 // quality
-    ).href;
+    if (!fileId) {
+      console.log('No file ID provided, returning placeholder');
+      return '/placeholder-image.svg';
+    }
+    
+    try {
+      console.log(`Getting file preview for file ID: ${fileId}`);
+      const previewUrl = storage.getFilePreview(
+        BUCKET_ID,
+        fileId,
+        2000, // width
+        2000, // height
+        'center', // gravity
+        100 // quality
+      ).href;
+      console.log(`Generated preview URL: ${previewUrl}`);
+      return previewUrl;
+    } catch (error) {
+      console.error('Error generating file preview URL:', error);
+      // Return a placeholder image URL if there's an error
+      return '/placeholder-image.svg';
+    }
   }
 
   async deleteFile(fileId: string): Promise<void> {

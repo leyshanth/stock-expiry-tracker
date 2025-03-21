@@ -528,17 +528,20 @@ export default function ProductsPage() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filteredProducts.map((product) => (
             <Card key={product.$id} className="overflow-hidden">
-              {product.image_id && (
-                <div className="h-48 w-full overflow-hidden">
-                  <Image
-                    src={databaseService.getFilePreview(product.image_id)}
-                    alt={product.name}
-                    width={400}
-                    height={300}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-              )}
+              <div className="h-48 w-full overflow-hidden bg-gray-100">
+                <Image
+                  src={product.image_id ? databaseService.getFilePreview(product.image_id) : '/placeholder-image.svg'}
+                  alt={product.name}
+                  width={400}
+                  height={300}
+                  className="h-full w-full object-cover"
+                  onError={(e) => {
+                    // If image fails to load, replace with placeholder
+                    const target = e.target as HTMLImageElement;
+                    target.src = '/placeholder-image.svg';
+                  }}
+                />
+              </div>
               
               <CardHeader>
                 <CardTitle className="line-clamp-1">{product.name}</CardTitle>
