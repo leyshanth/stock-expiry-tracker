@@ -13,6 +13,7 @@ import { Plus, Edit, Trash2, Search, Package, AlertTriangle, Camera, X, Barcode,
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { BackToTop } from "@/components/ui/back-to-top"
 
 // Import Quagga dynamically since it's a client-side only library
 import dynamic from "next/dynamic"
@@ -459,6 +460,7 @@ export default function ProductsPage() {
 
   return (
     <div className="container mx-auto max-w-4xl">
+      <BackToTop />
       <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <h1 className="text-2xl font-bold">Products</h1>
         

@@ -55,11 +55,14 @@ export function MobileNav() {
     display: 'flex',
     justifyContent: 'space-around',
     alignItems: 'center',
-    backgroundColor: 'var(--background)',
+    backgroundColor: 'hsl(var(--background))',
+    backdropFilter: 'none',
     borderRadius: '12px',
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)',
     zIndex: 50,
-    border: '1px solid var(--border)'
+    border: '1px solid var(--border)',
+    // Add a more solid background to ensure buttons are visible
+    background: 'hsl(var(--card))',
   } as React.CSSProperties
 
   // Don't render until client-side to avoid hydration issues
@@ -72,12 +75,16 @@ export function MobileNav() {
           key={item.href}
           href={item.href}
           className={cn(
-            "flex flex-col items-center justify-center p-2 text-xs transition-colors",
-            pathname === item.href ? "text-primary" : "text-muted-foreground hover:text-foreground"
+            "flex flex-col items-center justify-center p-2 text-xs transition-colors font-medium",
+            pathname === item.href 
+              ? "text-primary font-semibold" 
+              : "text-muted-foreground hover:text-foreground"
           )}
         >
-          <item.icon className="h-6 w-6" />
-          <span>{item.label}</span>
+          <div className="rounded-full bg-background/80 p-1">
+            <item.icon className="h-5 w-5" />
+          </div>
+          <span className="mt-0.5">{item.label}</span>
         </Link>
       ))}
     </div>
