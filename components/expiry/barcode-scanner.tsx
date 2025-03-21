@@ -19,8 +19,10 @@ export default function BarcodeScanner({
   onError
 }: BarcodeScannerProps) {
   const scannerRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const [isInitializing, setIsInitializing] = useState(true);
   const [hasError, setHasError] = useState(false);
+  const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
   const { toast } = useToast();
 
   // Handle escape key to close modal
@@ -40,8 +42,64 @@ export default function BarcodeScanner({
     let mounted = true;
     let quaggaInstance: any = null;
     
+    // First try to get camera access directly with multiple fallback options
+    const getCamera = async () => {
+      // Try different camera configurations in sequence
+      const cameraConfigs = [
+        { facingMode: { exact: "environment" } }, // Try rear camera first with exact constraint
+        { facingMode: "environment" },            // Try rear camera with preference
+        { facingMode: "user" },                   // Try front camera as last resort
+        {}                                        // Try any camera
+      ];
+      
+      for (const config of cameraConfigs) {
+        try {
+          console.log("Requesting camera access with config:", config);
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              ...config,
+              width: { ideal: 640 },
+              height: { ideal: 480 }
+            }
+          });
+          
+          if (mounted) {
+            setCameraStream(stream);
+            console.log("Camera access granted with config:", config);
+            
+            // If we have a video element, attach the stream
+            if (videoRef.current) {
+              videoRef.current.srcObject = stream;
+              videoRef.current.onloadedmetadata = () => {
+                if (videoRef.current) {
+                  videoRef.current.play().catch(e => console.error("Error playing video:", e));
+                }
+              };
+            }
+            return true; // Successfully got camera access
+          } else {
+            // Clean up if component unmounted
+            stream.getTracks().forEach(track => track.stop());
+            return false;
+          }
+        } catch (error) {
+          console.error(`Camera access failed with config ${JSON.stringify(config)}:`, error);
+          // Continue to next config
+        }
+      }
+      
+      console.error("All camera access attempts failed");
+      return false;
+    };
+    
+    // Get camera access first
+    getCamera();
+    
     const initializeScanner = async () => {
-      if (!scannerRef.current) return;
+      if (!scannerRef.current) {
+        console.error("Scanner ref not available");
+        return;
+      }
       
       try {
         // Don't stop Quagga before initialization - this can cause issues
@@ -56,7 +114,9 @@ export default function BarcodeScanner({
         setIsInitializing(true);
         setHasError(false);
         
-        // Initialize with more specific configuration
+        console.log("Initializing Quagga with target:", scannerRef.current);
+        
+        // Initialize with more specific configuration but with more flexible camera constraints
         await Quagga.init({
           inputStream: {
             name: "Live",
@@ -65,14 +125,15 @@ export default function BarcodeScanner({
             constraints: {
               width: { min: 320, ideal: 640, max: 1280 },
               height: { min: 240, ideal: 480, max: 720 },
-              facingMode: "environment"
+              facingMode: "environment" // Allow fallback to front camera if needed
             },
             area: { // Define scan area for better performance
               top: "25%",    // top offset
               right: "10%",  // right offset
               left: "10%",   // left offset
               bottom: "25%", // bottom offset
-            }
+            },
+            willReadFrequently: true
           },
           locator: {
             patchSize: "medium",
@@ -215,8 +276,16 @@ export default function BarcodeScanner({
     return () => {
       mounted = false;
       try {
+        // Clean up camera stream if it exists
+        if (cameraStream) {
+          cameraStream.getTracks().forEach(track => track.stop());
+          setCameraStream(null);
+        }
+        
+        // Clean up Quagga
         if (quaggaInstance) {
           quaggaInstance.offDetected();
+          quaggaInstance.offProcessed();
           quaggaInstance.stop();
         }
       } catch (e) {
@@ -256,33 +325,44 @@ export default function BarcodeScanner({
           )}
         </div>
         
-        {isInitializing ? (
-          <div className="flex h-64 md:h-80 items-center justify-center">
-            <div className="text-center">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
-              <p className="mt-2 text-sm text-muted-foreground">Initializing camera...</p>
-              <p className="mt-1 text-xs text-muted-foreground">Please allow camera access when prompted</p>
+        {/* Direct video element as fallback */}
+        <div className="w-full h-64 md:h-80 relative overflow-hidden">
+          <video 
+            ref={videoRef}
+            className={`absolute inset-0 h-full w-full object-cover ${!hasError && !isInitializing ? 'block' : 'hidden'}`}
+            autoPlay 
+            playsInline 
+            muted
+          ></video>
+          
+          {isInitializing ? (
+            <div className="flex h-64 md:h-80 items-center justify-center">
+              <div className="text-center">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
+                <p className="mt-2 text-sm text-muted-foreground">Initializing camera...</p>
+                <p className="mt-1 text-xs text-muted-foreground">Please allow camera access when prompted</p>
+              </div>
             </div>
-          </div>
-        ) : hasError ? (
-          <div className="flex h-64 md:h-80 flex-col items-center justify-center p-4">
-            <AlertCircle className="h-8 w-8 text-destructive mb-2" />
-            <p className="text-center text-sm font-medium text-destructive">Failed to access camera</p>
-            <p className="text-center text-xs text-muted-foreground mt-1 mb-4">Please check your permissions or try manual entry</p>
-            <Button onClick={handleManualEntry}>
-              Enter Barcode Manually
-            </Button>
-          </div>
-        ) : (
-          <div 
-            ref={scannerRef} 
-            className="w-full h-64 md:h-80 relative overflow-hidden"
-          >
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-4/5 h-1/3 border-2 border-red-500 border-dashed rounded-lg"></div>
+          ) : hasError ? (
+            <div className="flex h-64 md:h-80 flex-col items-center justify-center p-4">
+              <AlertCircle className="h-8 w-8 text-destructive mb-2" />
+              <p className="text-center text-sm font-medium text-destructive">Failed to access camera</p>
+              <p className="text-center text-xs text-muted-foreground mt-1 mb-4">Please check your permissions or try manual entry</p>
+              <Button onClick={handleManualEntry}>
+                Enter Barcode Manually
+              </Button>
             </div>
-          </div>
-        )}
+          ) : (
+            <div 
+              ref={scannerRef} 
+              className="w-full h-64 md:h-80 relative overflow-hidden"
+            >
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="w-4/5 h-1/3 border-2 border-red-500 border-dashed rounded-lg"></div>
+              </div>
+            </div>
+          )}
+        </div>
         
         <div className="p-4 flex justify-between">
           {onClose && (
