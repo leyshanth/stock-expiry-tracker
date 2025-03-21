@@ -1,12 +1,17 @@
+"use client";
+
 import React from 'react';
 import Link from 'next/link';
-import { ArrowLeft, User, Settings } from 'lucide-react';
+import { ArrowLeft, User, Settings, LogOut } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/lib/hooks/use-auth';
 
 export default function SettingsLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { logout, loading } = useAuth();
   return (
     <div className="container py-6">
       <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
@@ -33,6 +38,18 @@ export default function SettingsLayout({
               <Settings className="mr-2 h-4 w-4" />
               General Settings
             </Link>
+            
+            <div className="pt-6 mt-6 border-t border-border">
+              <Button 
+                variant="destructive" 
+                className="w-full justify-start" 
+                onClick={logout}
+                disabled={loading}
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Logout
+              </Button>
+            </div>
           </nav>
         </aside>
         <div className="flex-1">{children}</div>
