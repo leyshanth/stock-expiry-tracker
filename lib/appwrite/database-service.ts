@@ -290,14 +290,22 @@ export class DatabaseService {
   // File storage operations
   async uploadProductImage(file: File, userId: string): Promise<string> {
     try {
+      // Generate a unique ID and log it to verify it's not the string 'unique()'
       const fileId = ID.unique();
+      console.log(`Generated file ID: ${fileId}`);
+      
       // Upload file without specifying permissions to use bucket default permissions
-      await storage.createFile(
+      const result = await storage.createFile(
         BUCKET_ID,
         fileId,
         file
       );
-      return fileId;
+      
+      // Log the result to verify the file was created successfully
+      console.log(`File uploaded successfully with ID: ${result.$id}`);
+      
+      // Return the actual file ID from the result
+      return result.$id;
     } catch (error) {
       console.error('DatabaseService.uploadProductImage error:', error);
       throw error;
@@ -305,13 +313,14 @@ export class DatabaseService {
   }
 
   getFilePreview(fileId: string): string {
-    if (!fileId) {
-      console.log('No file ID provided, returning placeholder');
+    if (!fileId || fileId === 'unique()') {
+      console.log('Invalid file ID provided, returning placeholder');
       return '/placeholder-image.svg';
     }
     
     try {
       console.log(`Getting file preview for file ID: ${fileId}`);
+      // Create the preview URL
       const previewUrl = storage.getFilePreview(
         BUCKET_ID,
         fileId,
@@ -320,6 +329,7 @@ export class DatabaseService {
         'center', // gravity
         100 // quality
       ).href;
+      
       console.log(`Generated preview URL: ${previewUrl}`);
       return previewUrl;
     } catch (error) {
