@@ -58,9 +58,10 @@ export default function BarcodeScanner({
           const stream = await navigator.mediaDevices.getUserMedia({
             video: {
               ...config,
-              width: { ideal: 640 },
-              height: { ideal: 480 }
-            }
+              width: { min: 320, ideal: 640, max: 1280 },
+              height: { min: 240, ideal: 480, max: 720 }
+            },
+            audio: false
           });
           
           if (mounted) {
@@ -69,10 +70,28 @@ export default function BarcodeScanner({
             
             // If we have a video element, attach the stream
             if (videoRef.current) {
+              // Make sure video is visible and has proper z-index
+              videoRef.current.style.display = 'block';
+              videoRef.current.style.zIndex = '5';
               videoRef.current.srcObject = stream;
+              
+              console.log('Setting video element source and making visible');
+              
+              // Ensure video plays after metadata is loaded
               videoRef.current.onloadedmetadata = () => {
                 if (videoRef.current) {
-                  videoRef.current.play().catch(e => console.error("Error playing video:", e));
+                  console.log('Video metadata loaded, attempting to play');
+                  videoRef.current.play()
+                    .then(() => {
+                      console.log('Video playback started successfully');
+                      // Set initializing to false only after video is playing
+                      setIsInitializing(false);
+                    })
+                    .catch(e => {
+                      console.error("Error playing video:", e);
+                      setHasError(true);
+                      setIsInitializing(false);
+                    });
                 }
               };
             }
@@ -134,6 +153,7 @@ export default function BarcodeScanner({
               bottom: "25%", // bottom offset
             },
             willReadFrequently: true
+            // Note: We'll use scannerRef as the target, not videoRef
           },
           locator: {
             patchSize: "medium",
@@ -329,39 +349,63 @@ export default function BarcodeScanner({
         <div className="w-full h-64 md:h-80 relative overflow-hidden">
           <video 
             ref={videoRef}
-            className={`absolute inset-0 h-full w-full object-cover ${!hasError && !isInitializing ? 'block' : 'hidden'}`}
+            className="absolute inset-0 h-full w-full object-cover"
             autoPlay 
             playsInline 
             muted
+            style={{ 
+              display: 'block', 
+              zIndex: 5,
+              visibility: !hasError && !isInitializing ? 'visible' : 'hidden'
+            }}
           ></video>
           
-          {isInitializing ? (
-            <div className="flex h-64 md:h-80 items-center justify-center">
-              <div className="text-center">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
-                <p className="mt-2 text-sm text-muted-foreground">Initializing camera...</p>
-                <p className="mt-1 text-xs text-muted-foreground">Please allow camera access when prompted</p>
-              </div>
+          {/* Loading state overlay */}
+          <div 
+            className="absolute inset-0 flex h-64 md:h-80 items-center justify-center" 
+            style={{ 
+              zIndex: 10,
+              display: isInitializing ? 'flex' : 'none'
+            }}
+          >
+            <div className="text-center bg-background/80 p-4 rounded-lg">
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
+              <p className="mt-2 text-sm text-muted-foreground">Initializing camera...</p>
+              <p className="mt-1 text-xs text-muted-foreground">Please allow camera access when prompted</p>
             </div>
-          ) : hasError ? (
-            <div className="flex h-64 md:h-80 flex-col items-center justify-center p-4">
-              <AlertCircle className="h-8 w-8 text-destructive mb-2" />
+          </div>
+          
+          {/* Error state overlay */}
+          <div 
+            className="absolute inset-0 flex h-64 md:h-80 flex-col items-center justify-center p-4" 
+            style={{ 
+              zIndex: 10,
+              display: hasError ? 'flex' : 'none'
+            }}
+          >
+            <div className="bg-background/80 p-4 rounded-lg text-center">
+              <AlertCircle className="h-8 w-8 text-destructive mb-2 mx-auto" />
               <p className="text-center text-sm font-medium text-destructive">Failed to access camera</p>
               <p className="text-center text-xs text-muted-foreground mt-1 mb-4">Please check your permissions or try manual entry</p>
               <Button onClick={handleManualEntry}>
                 Enter Barcode Manually
               </Button>
             </div>
-          ) : (
-            <div 
-              ref={scannerRef} 
-              className="w-full h-64 md:h-80 relative overflow-hidden"
-            >
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="w-4/5 h-1/3 border-2 border-red-500 border-dashed rounded-lg"></div>
-              </div>
+          </div>
+          
+          {/* Scanner area - always present but with varying visibility */}
+          <div 
+            ref={scannerRef} 
+            className="absolute inset-0 w-full h-64 md:h-80 overflow-hidden"
+            style={{ 
+              zIndex: 8,
+              visibility: !isInitializing && !hasError ? 'visible' : 'hidden'
+            }}
+          >
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="w-4/5 h-1/3 border-2 border-red-500 border-dashed rounded-lg"></div>
             </div>
-          )}
+          </div>
         </div>
         
         <div className="p-4 flex justify-between">
