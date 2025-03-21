@@ -7,8 +7,9 @@ import { databaseService, ExpiryItem, Product } from "@/lib/appwrite/database-se
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { AlertTriangle, PlusCircle } from "lucide-react"
+import { AlertTriangle, PlusCircle, Trash2 } from "lucide-react"
 import { format, differenceInDays } from "date-fns"
+import { useToast } from "@/components/ui/use-toast"
 
 interface ExpiryItemWithProduct extends ExpiryItem {
   product?: Product;
@@ -16,9 +17,11 @@ interface ExpiryItemWithProduct extends ExpiryItem {
 
 export default function HomePage() {
   const { user } = useAuth()
+  const { toast } = useToast()
   const [greeting, setGreeting] = useState("Good day")
   const [loading, setLoading] = useState(true)
   const [expiryItems, setExpiryItems] = useState<ExpiryItemWithProduct[]>([])
+  const [isDeleting, setIsDeleting] = useState(false)
   
   // Set greeting based on time of day
   useEffect(() => {
@@ -57,6 +60,38 @@ export default function HomePage() {
     loadExpiryItems()
   }, [user])
 
+  // Handle deleting an expiry item
+  const handleDeleteItem = async (itemId: string) => {
+    if (!user || isDeleting) return
+    
+    if (confirm("Are you sure you want to delete this item?")) {
+      try {
+        setIsDeleting(true)
+        
+        // Mark the item as deleted instead of permanently deleting it
+        await databaseService.markExpiryItemAsDeleted(itemId)
+        
+        // Update the UI by removing the deleted item
+        setExpiryItems(prev => prev.filter(item => item.$id !== itemId))
+        
+        // Show success message
+        toast({
+          title: "Item Deleted",
+          description: "The item has been moved to the deleted items.",
+        })
+      } catch (error) {
+        console.error("Error deleting item:", error)
+        toast({
+          title: "Delete Failed",
+          description: "Could not delete the item. Please try again.",
+          variant: "destructive"
+        })
+      } finally {
+        setIsDeleting(false)
+      }
+    }
+  }
+  
   // Get expiry status and color
   const getExpiryStatus = (expiryDate: Date) => {
     const today = new Date()
@@ -136,9 +171,17 @@ export default function HomePage() {
                       <div className="truncate">{item.barcode}</div>
                     </div>
                   </CardContent>
-                  <CardFooter>
-                    <Button asChild variant="outline" size="sm" className="w-full">
-                      <Link href={`/dashboard/expiry?id=${item.$id}`}>View Details</Link>
+                  <CardFooter className="flex gap-2">
+                    <Button asChild variant="outline" size="sm" className="flex-1">
+                      <Link href={`/dashboard/expiry?id=${item.$id || ''}`}>View Details</Link>
+                    </Button>
+                    <Button 
+                      variant="destructive" 
+                      size="sm"
+                      onClick={() => handleDeleteItem(item.$id)}
+                      className="px-3"
+                    >
+                      Delete
                     </Button>
                   </CardFooter>
                 </Card>

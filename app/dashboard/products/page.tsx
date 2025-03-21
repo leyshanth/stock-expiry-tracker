@@ -146,13 +146,35 @@ export default function ProductsPage() {
 
       // Upload image if provided
       if (formData.image) {
-        console.log("Uploading product image...")
-        try {
-          imageId = await databaseService.uploadProductImage(formData.image, user.$id)
-          console.log("Image uploaded successfully with ID:", imageId)
-        } catch (imageError) {
-          console.error("Failed to upload image:", imageError)
-          // Continue without image if upload fails
+        console.log("Uploading product image...", formData.image)
+        // Verify that the file is valid
+        if (!(formData.image instanceof File) || formData.image.size === 0) {
+          console.error("Invalid image file:", formData.image)
+          toast({
+            title: "Image Error",
+            description: "The selected image file is invalid. Please try again with a different image.",
+            variant: "destructive"
+          })
+        } else {
+          try {
+            // Log file details
+            console.log("File details:", {
+              name: formData.image.name,
+              type: formData.image.type,
+              size: formData.image.size
+            })
+            
+            imageId = await databaseService.uploadProductImage(formData.image, user.$id)
+            console.log("Image uploaded successfully with ID:", imageId)
+          } catch (imageError) {
+            console.error("Failed to upload image:", imageError)
+            toast({
+              title: "Image Upload Failed",
+              description: "Could not upload the image. Please try again.",
+              variant: "destructive"
+            })
+            // Continue without image if upload fails
+          }
         }
       }
 
@@ -226,13 +248,45 @@ export default function ProductsPage() {
 
       // Upload new image if provided
       if (formData.image) {
-        // Delete old image if exists
-        if (selectedProduct.image_id) {
-          await databaseService.deleteFile(selectedProduct.image_id)
+        console.log("Uploading product image for edit...", formData.image)
+        // Verify that the file is valid
+        if (!(formData.image instanceof File) || formData.image.size === 0) {
+          console.error("Invalid image file:", formData.image)
+          toast({
+            title: "Image Error",
+            description: "The selected image file is invalid. Please try again with a different image.",
+            variant: "destructive"
+          })
+        } else {
+          // Delete old image if exists
+          if (selectedProduct.image_id) {
+            try {
+              await databaseService.deleteFile(selectedProduct.image_id)
+              console.log("Old image deleted successfully")
+            } catch (deleteError) {
+              console.error("Failed to delete old image:", deleteError)
+            }
+          }
+          
+          try {
+            // Log file details
+            console.log("File details:", {
+              name: formData.image.name,
+              type: formData.image.type,
+              size: formData.image.size
+            })
+            
+            imageId = await databaseService.uploadProductImage(formData.image, user.$id)
+            console.log("Image uploaded successfully with ID:", imageId)
+          } catch (imageError) {
+            console.error("Failed to upload image:", imageError)
+            toast({
+              title: "Image Upload Failed",
+              description: "Could not upload the image. Please try again.",
+              variant: "destructive"
+            })
+          }
         }
-        
-        // Upload new image
-        imageId = await databaseService.uploadProductImage(formData.image, user.$id)
       }
 
       // Update product
