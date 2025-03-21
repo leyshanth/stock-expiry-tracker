@@ -33,15 +33,23 @@ export class DatabaseService {
   async createProduct(product: Omit<Product, '$id' | 'created_at' | 'updated_at'>): Promise<Product> {
     try {
       const now = new Date();
+      
+      // Store price as a float value
+      const productData = {
+        ...product,
+        // Ensure price is a valid float
+        price: Number(product.price),
+        created_at: now,
+        updated_at: now
+      };
+      
+      console.log('Formatted product data for Appwrite:', productData);
+      
       const result = await databases.createDocument(
         DATABASE_ID,
         PRODUCTS_COLLECTION_ID,
         ID.unique(),
-        {
-          ...product,
-          created_at: now,
-          updated_at: now
-        }
+        productData
       );
       return result as unknown as Product;
     } catch (error) {
@@ -270,7 +278,8 @@ export class DatabaseService {
         BUCKET_ID,
         fileId,
         file,
-        [`user:${userId}`] // Set permissions for the file
+        // Use correct permission format: 'read', 'write', etc.
+        ['read:role:all', `write:user:${userId}`] // Allow reading by all, writing only by owner
       );
       return fileId;
     } catch (error) {

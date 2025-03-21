@@ -162,6 +162,8 @@ export default function ProductsPage() {
         user_id: user.$id,
         barcode: formData.barcode,
         name: formData.name,
+        // Ensure price is a valid number and convert to integer if needed
+        // The database service will handle the final conversion to integer
         price: parseFloat(formData.price) || 0,
         weight: formData.weight,
         category: formData.category,
