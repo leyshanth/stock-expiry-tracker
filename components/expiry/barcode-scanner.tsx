@@ -192,35 +192,37 @@ export default function BarcodeScanner({
         console.log("Initializing Quagga with target:", scannerRef.current);
         
         // Initialize with optimized configuration for faster barcode detection
+        // FIX: Adjusted the scanning area to match the green targeting box's position
         await Quagga.init({
           inputStream: {
             name: "Live",
             type: "LiveStream",
             target: scannerRef.current,
             constraints: {
-              width: { min: 1280, ideal: 1920, max: 2560 }, // Higher resolution for better detection
+              width: { min: 1280, ideal: 1920, max: 2560 },
               height: { min: 720, ideal: 1080, max: 1440 },
-              facingMode: "environment", // Allow fallback to front camera if needed
-              aspectRatio: { ideal: 1.777778 }, // 16:9 aspect ratio
+              facingMode: "environment",
+              aspectRatio: { ideal: 1.777778 },
             },
-            area: { // Align scan area precisely with the green targeting box
-              top: "33%",    // top offset
-              right: "30%",  // right offset
-              left: "30%",   // left offset
-              bottom: "33%", // bottom offset
+            area: {
+              // FIXED: Adjusted scan area to align with the visible green targeting box
+              top: "33.5%",    // Slightly adjusted to match visible target
+              right: "30%",   
+              left: "30%",   
+              bottom: "33.5%", 
             },
             willReadFrequently: true
           },
           locator: {
-            patchSize: "medium", // Use medium patches for better small barcode detection
-            halfSample: false    // Disable half sampling for more accurate detection
+            patchSize: "medium",
+            halfSample: false
           },
-          debug: false,         // Disable debug visualization
-          numOfWorkers: 4,       // Increase workers for faster processing
-          frequency: 15,         // Scan more frequently (15 scans per second)
+          debug: false,
+          numOfWorkers: 4,
+          frequency: 15,
           decoder: {
             readers: ["ean_reader", "ean_8_reader", "code_128_reader", "upc_reader", "upc_e_reader"],
-            multiple: false,     // Only detect one barcode at a time
+            multiple: false,
           },
           locate: true
         });
@@ -273,9 +275,6 @@ export default function BarcodeScanner({
             Number(drawingCanvas.getAttribute("width")), 
             Number(drawingCanvas.getAttribute("height"))
           );
-
-          // We're not drawing any debug lines or boxes to keep the UI clean
-          // This helps users focus on the green targeting box instead
           
           // Only highlight successful reads with a subtle indicator
           if (result && result.codeResult && result.codeResult.code) {
@@ -433,6 +432,7 @@ export default function BarcodeScanner({
             }}
           >
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              {/* UPDATED: Using a true-center positioning to ensure alignment with scan area */}
               <div className="w-2/5 h-1/3 border-2 border-[#004BFE] rounded-lg relative" id="scanner-target-box">
                 {/* Corner indicators for better targeting */}
                 <div className="absolute -top-1 -left-1 w-3 h-3 border-t-2 border-l-2 border-green-500"></div>

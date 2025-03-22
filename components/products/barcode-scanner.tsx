@@ -216,11 +216,12 @@ export default function BarcodeScanner({
               facingMode: "environment", // Allow fallback to front camera if needed
               aspectRatio: { ideal: 1.777778 }, // 16:9 aspect ratio
             },
-            area: { // Align scan area precisely with the green targeting box
-              top: "33%",    // top offset
-              right: "30%",  // right offset
-              left: "30%",   // left offset
-              bottom: "33%", // bottom offset
+            area: { 
+              // FIXED: Perfectly align scan area with the 40% width, 33% height UI element
+              top: "33.5%",
+              right: "30%",  // 100% - 40% = 60%, half of that is 30%
+              left: "30%",   
+              bottom: "33.5%",
             },
             willReadFrequently: true
           },
@@ -446,7 +447,8 @@ export default function BarcodeScanner({
             }}
           >
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-2/5 h-1/3 border-2 border-[#004BFE] rounded-lg relative" id="scanner-target-box">
+              {/* FIXED: Using exact w-[40%] h-[33%] to match the scan area configuration */}
+              <div className="w-[40%] h-[33%] border-2 border-[#004BFE] rounded-lg relative" id="scanner-target-box">
                 {/* Corner indicators for better targeting */}
                 <div className="absolute -top-1 -left-1 w-3 h-3 border-t-2 border-l-2 border-green-500"></div>
                 <div className="absolute -top-1 -right-1 w-3 h-3 border-t-2 border-r-2 border-green-500"></div>
