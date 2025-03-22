@@ -25,6 +25,54 @@ export default function BarcodeScanner({
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
   const { toast } = useToast();
 
+  // Clean up all resources - centralized function
+  const cleanupResources = () => {
+    console.log("Cleaning up all resources");
+    
+    // Remove Quagga event listeners
+    try {
+      Quagga.offDetected();
+      Quagga.offProcessed();
+    } catch (e) {
+      console.log("Error removing Quagga event listeners:", e);
+    }
+    
+    // Stop Quagga
+    try {
+      Quagga.stop();
+      console.log("Quagga stopped successfully");
+    } catch (e) {
+      console.error("Error stopping Quagga:", e);
+    }
+    
+    // Stop camera streams
+    if (cameraStream) {
+      try {
+        cameraStream.getTracks().forEach(track => {
+          track.stop();
+          console.log("Camera track stopped:", track.kind);
+        });
+        setCameraStream(null);
+      } catch (e) {
+        console.error("Error stopping camera tracks:", e);
+      }
+    }
+    
+    // Extra safety: clear video element source
+    if (videoRef.current && videoRef.current.srcObject) {
+      try {
+        const videoStream = videoRef.current.srcObject as MediaStream;
+        videoStream.getTracks().forEach(track => {
+          track.stop();
+          console.log("Video track stopped from video element");
+        });
+        videoRef.current.srcObject = null;
+      } catch (e) {
+        console.error("Error clearing video element source:", e);
+      }
+    }
+  };
+
   // Handle escape key to close modal
   useEffect(() => {
     const handleEscKey = (event: KeyboardEvent) => {
@@ -39,43 +87,16 @@ export default function BarcodeScanner({
   
   // Function to properly clean up resources and close the scanner
   const handleClose = () => {
-    // First remove all event listeners to prevent any further processing
-    try {
-      Quagga.offDetected();
-      Quagga.offProcessed();
-    } catch (e) {
-      // Ignore - might not be initialized
-    }
+    cleanupResources();
     
-    // Stop the camera stream
-    if (cameraStream) {
-      cameraStream.getTracks().forEach(track => {
-        track.stop();
-        console.log("Camera track stopped on close");
-      });
-      setCameraStream(null);
+    if (onClose) {
+      onClose();
     }
-    
-    // Stop Quagga if it's running
-    try {
-      Quagga.stop();
-      console.log("Camera and scanner stopped on close");
-    } catch (e) {
-      console.error("Error stopping Quagga:", e);
-    }
-    
-    // Call the onClose callback after a small delay to ensure cleanup completes
-    setTimeout(() => {
-      if (onClose) {
-        onClose();
-      }
-    }, 100);
   };
 
   // Initialize scanner when component mounts
   useEffect(() => {
     let mounted = true;
-    let quaggaInstance: any = null;
     
     // First try to get camera access directly with multiple fallback options
     const getCamera = async () => {
@@ -189,7 +210,6 @@ export default function BarcodeScanner({
               bottom: "30%", // bottom offset
             },
             willReadFrequently: true
-            // Note: We'll use scannerRef as the target, not videoRef
           },
           locator: {
             patchSize: "large", // Use larger patches for better detection
@@ -199,13 +219,9 @@ export default function BarcodeScanner({
           decoder: {
             readers: ["ean_reader", "ean_8_reader", "code_128_reader", "upc_reader", "upc_e_reader"],
             multiple: false, // Only detect one barcode at a time
-            // Note: Using only properties supported by the type definition
           },
           locate: true
         });
-        
-        // Store reference to current instance
-        quaggaInstance = Quagga;
         
         // Start scanner
         await Quagga.start();
@@ -233,35 +249,11 @@ export default function BarcodeScanner({
               beep.play().catch(() => {});
             } catch (e) {}
             
-            // Stop Quagga after successful scan
-            try {
-              // Remove event listeners first to prevent multiple detections
-              Quagga.offDetected();
-              Quagga.offProcessed();
-              
-              // Stop Quagga
-              Quagga.stop();
-              console.log("Quagga stopped after successful scan");
-              
-              // Also stop the camera stream
-              if (cameraStream) {
-                cameraStream.getTracks().forEach(track => {
-                  track.stop();
-                  console.log("Camera track stopped after successful scan");
-                });
-                setCameraStream(null);
-              }
-              
-              // Add a small delay before calling onDetected to ensure cleanup completes
-              setTimeout(() => {
-                onDetected(code);
-              }, 100);
-              
-              // Return early to prevent the onDetected call at the end
-              return;
-            } catch (stopError) {
-              console.error("Error stopping Quagga after scan:", stopError);
-            }
+            // First, clean up all resources synchronously
+            cleanupResources();
+            
+            // Then call the onDetected callback with the barcode value
+            onDetected(code);
           }
         });
         
@@ -348,36 +340,10 @@ export default function BarcodeScanner({
     // Start scanner
     initializeScanner();
     
-    // Cleanup function
+    // Cleanup function for when component unmounts
     return () => {
       mounted = false;
-      try {
-        // First remove all event listeners
-        try {
-          Quagga.offDetected();
-          Quagga.offProcessed();
-        } catch (e) {
-          // Ignore - might not be initialized
-        }
-        
-        // Clean up camera stream if it exists
-        if (cameraStream) {
-          cameraStream.getTracks().forEach(track => {
-            track.stop();
-            console.log("Camera track stopped during cleanup");
-          });
-        }
-        
-        // Clean up Quagga
-        try {
-          Quagga.stop();
-          console.log("Quagga stopped during cleanup");
-        } catch (e) {
-          // Ignore - might not be initialized
-        }
-      } catch (e) {
-        console.error("Error during cleanup:", e);
-      }
+      cleanupResources();
     };
   }, [onDetected, onError, toast]);
 

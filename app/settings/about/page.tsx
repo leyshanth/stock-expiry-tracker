@@ -1,8 +1,9 @@
 "use client"
 
+import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { BackToTop } from "@/components/ui/back-to-top"
-import { Github, Mail, Twitter, User } from "lucide-react"
+import { Github, Mail, Twitter } from "lucide-react"
 
 export default function AboutPage() {
   return (
@@ -18,9 +19,14 @@ export default function AboutPage() {
         <CardContent className="p-0">
           <div className="flex flex-col md:flex-row">
             <div className="md:w-1/3 p-6 flex flex-col items-center justify-center bg-muted/30">
-              <div className="relative w-40 h-40 rounded-full overflow-hidden border-4 border-primary/20 shadow-xl mb-4 bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-                <User className="h-20 w-20 text-primary/70" />
-                <span className="absolute text-4xl font-bold text-primary/70">L</span>
+              <div className="relative w-40 h-40 rounded-full overflow-hidden border-4 border-primary/20 shadow-xl mb-4">
+                <Image 
+                  src="/leyshanth.jpg" 
+                  alt="Leyshanth" 
+                  fill
+                  className="object-cover"
+                  priority
+                />
               </div>
               <h2 className="text-xl font-bold text-center">Leyshanth</h2>
               <p className="text-muted-foreground text-center mt-1">Developer & Designer</p>
