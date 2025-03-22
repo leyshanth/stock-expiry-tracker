@@ -138,12 +138,21 @@ export default function ProductsPage() {
       console.log(`Checking if barcode ${formData.barcode} already exists...`)
       const existingProduct = await databaseService.getProductByBarcode(user.$id, formData.barcode)
       if (existingProduct) {
-        console.error(`Barcode ${formData.barcode} already exists for product: ${existingProduct.name}`)
+        console.log(`Barcode ${formData.barcode} already exists for product: ${existingProduct.name}`)
+        // Close dialog since we're just showing existing product details
+        setIsAddDialogOpen(false)
+        
+        // Update products list if needed
+        if (!products.some(p => p.$id === existingProduct.$id)) {
+          setProducts(prev => [existingProduct, ...prev])
+        }
+        
         toast({
-          title: "Error",
-          description: "A product with this barcode already exists",
-          variant: "destructive",
+          title: "Product Already Exists",
+          description: `${existingProduct.name} is already in your inventory.`,
+          className: "bg-white border border-blue-200 text-[#004BFE]",
         })
+        setIsAddingProduct(false)
         return
       }
       console.log("Barcode check passed, product is unique")
@@ -428,8 +437,48 @@ export default function ProductsPage() {
         setIsSearchingBarcode(false)
         setIsQuickScannerOpen(false)
       }
+    } else if (scannerMode === 'add') {
+      // For add mode, check if product exists and populate form if it does
+      if (!user) return
+      
+      try {
+        setIsSearchingBarcode(true)
+        const existingProduct = await databaseService.getProductByBarcode(user.$id, barcode)
+        
+        if (existingProduct) {
+          // Populate form with existing product details
+          setFormData({
+            barcode: existingProduct.barcode,
+            name: existingProduct.name,
+            price: existingProduct.price.toString(),
+            weight: existingProduct.weight,
+            category: existingProduct.category,
+            image: null,
+          })
+          
+          toast({
+            title: "Product Already Exists",
+            description: `Details for ${existingProduct.name} have been loaded.`,
+            className: "bg-white border border-blue-200 text-[#004BFE]",
+          })
+        } else {
+          // Just update the barcode field
+          setFormData(prev => ({ ...prev, barcode }))
+          toast({
+            title: "Barcode Detected",
+            description: `Barcode: ${barcode}`,
+          })
+        }
+      } catch (error) {
+        console.error("Error checking product by barcode:", error)
+        // Just update the barcode field if there's an error
+        setFormData(prev => ({ ...prev, barcode }))
+      } finally {
+        setIsSearchingBarcode(false)
+        setIsScannerDialogOpen(false)
+      }
     } else {
-      // For add or edit modes, just update the form
+      // For edit mode, just update the form
       setFormData(prev => ({ ...prev, barcode }))
       toast({
         title: "Barcode Detected",

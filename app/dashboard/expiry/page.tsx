@@ -229,6 +229,7 @@ export default function ExpiryPage() {
         toast({
           title: "Product Found",
           description: `Found: ${fetchedProduct.name}`,
+          className: "bg-white border border-blue-200 text-[#004BFE]",
         })
       } else {
         setProduct(null)
