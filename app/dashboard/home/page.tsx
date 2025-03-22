@@ -155,10 +155,7 @@ export default function HomePage() {
     <main className="container py-8 space-y-10">
       <BackToTop />
       <div className="flex flex-col space-y-3 bg-gradient-to-r from-primary/10 to-secondary/10 p-6 rounded-2xl">
-        <h1 className="text-3xl font-bold">{greeting}, {user?.name || 'User'}</h1>
-        <p className="text-muted-foreground text-lg">
-          Welcome to your Stock & Expiry Tracker dashboard.
-        </p>
+        <h1 className="text-3xl font-bold">{greeting}, {user?.name || 'User'}, welcome to your Stock & Expiry Tracker dashboard</h1>
       </div>
 
       {/* Upcoming Expiry Items */}

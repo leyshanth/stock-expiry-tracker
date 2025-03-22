@@ -462,7 +462,7 @@ export default function ProductsPage() {
     <div className="container mx-auto max-w-4xl py-8">
       <BackToTop />
       <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center bg-gradient-to-r from-primary/10 to-secondary/10 p-6 rounded-2xl">
-        <h1 className="text-2xl font-bold">Products</h1>
+        <h1 className="text-2xl font-bold">Good evening, {user?.name || 'User'}, welcome to your Products dashboard</h1>
         
         <div className="flex flex-col gap-2 sm:flex-row">
           <div className="relative">
