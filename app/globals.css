@@ -9,11 +9,11 @@
   }
 
   .mobile-nav-item {
-    @apply flex flex-col items-center justify-center rounded-full p-2 text-xs text-muted-foreground transition-colors hover:text-foreground;
+    @apply flex flex-col items-center justify-center rounded-full p-2 text-xs text-muted-foreground transition-colors hover:text-[#004BFE];
   }
 
   .mobile-nav-item.active {
-    @apply text-primary font-medium;
+    @apply text-[#004BFE] font-medium;
   }
   
   .mobile-nav-icon {

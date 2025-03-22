@@ -188,9 +188,9 @@ export default function ExpiryPage() {
   }, [])
 
   return (
-    <div className="container mx-auto max-w-md py-8">
-      <div className="mb-8 bg-gradient-to-r from-primary/10 to-secondary/10 p-6 rounded-2xl">
-        <h1 className="text-2xl font-bold">Good evening, {user?.name || 'User'}, welcome to your Expiry Tracker dashboard</h1>
+    <div className="container mx-auto max-w-md pt-4 pb-8">
+      <div className="mb-8 bg-gradient-to-r from-primary/10 to-secondary/10 p-6 rounded-2xl -mt-2">
+        <h1 className="text-xl font-bold text-[#004BFE]">Good evening, {user?.name || 'User'}, welcome to your Expiry Tracker dashboard</h1>
       </div>
       
       <div className="mb-8 bg-card rounded-xl border border-border shadow-sm p-6">
