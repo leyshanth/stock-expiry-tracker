@@ -217,23 +217,23 @@ export default function BarcodeScanner({
               aspectRatio: { ideal: 1.777778 }, // 16:9 aspect ratio
             },
             area: { 
-              // Configured for horizontal line scanning pattern
-              top: "45%",    // Center the scan area around the horizontal line
-              right: "10%",  // Wide horizontal coverage
-              left: "10%",   // Wide horizontal coverage
-              bottom: "55%", // Narrow vertical band around the line
+              // Reverting to a full-screen scanning approach for better detection
+              top: "0%",    // Scan the entire viewfinder
+              right: "0%",  // No right margin
+              left: "0%",   // No left margin
+              bottom: "0%", // Scan the entire viewfinder
             },
             willReadFrequently: true
           },
           locator: {
-            patchSize: "medium", // Use medium patches for better small barcode detection
-            halfSample: false    // Disable half sampling for more accurate detection
+            patchSize: "large",   // Use larger patches for better detection
+            halfSample: true      // Enable half sampling for better performance
           },
           debug: false,         // Disable debug visualization
-          numOfWorkers: 4,       // Increase workers for faster processing
-          frequency: 15,         // Scan more frequently (15 scans per second)
+          numOfWorkers: 2,       // Reduce workers to avoid overloading
+          frequency: 10,         // Scan at a more reliable rate
           decoder: {
-            readers: ["ean_reader", "ean_8_reader", "code_128_reader", "upc_reader", "upc_e_reader"],
+            readers: ["ean_reader", "ean_8_reader", "code_128_reader", "upc_reader", "upc_e_reader", "code_39_reader"],
             multiple: false,     // Only detect one barcode at a time
           },
           locate: true
