@@ -204,7 +204,7 @@ export default function BarcodeScanner({
         
         console.log("Initializing Quagga with target:", scannerRef.current);
         
-        // Initialize with optimized configuration for faster barcode detection
+        // Initialize with optimized configuration for faster detection of small barcodes
         await Quagga.init({
           inputStream: {
             name: "Live",
@@ -216,24 +216,23 @@ export default function BarcodeScanner({
               facingMode: "environment", // Allow fallback to front camera if needed
               aspectRatio: { ideal: 1.777778 }, // 16:9 aspect ratio
             },
-            area: { // Define smaller scan area for better performance
-              top: "30%",    // top offset
-              right: "20%",  // right offset
-              left: "20%",   // left offset
-              bottom: "30%", // bottom offset
+            area: { // Define focused scan area for better small barcode detection
+              top: "35%",    // top offset
+              right: "25%",  // right offset
+              left: "25%",   // left offset
+              bottom: "35%", // bottom offset
             },
             willReadFrequently: true
-            // Note: We'll use scannerRef as the target, not videoRef
           },
           locator: {
-            patchSize: "large", // Use larger patches for better detection
-            halfSample: true
+            patchSize: "medium", // Use medium patches for better small barcode detection
+            halfSample: false    // Disable half sampling for more accurate detection
           },
-          numOfWorkers: 2,
+          numOfWorkers: 4,       // Increase workers for faster processing
+          frequency: 10,         // Scan more frequently (10 scans per second)
           decoder: {
             readers: ["ean_reader", "ean_8_reader", "code_128_reader", "upc_reader", "upc_e_reader"],
-            multiple: false, // Only detect one barcode at a time
-            // Note: Using only properties supported by the type definition
+            multiple: false,     // Only detect one barcode at a time
           },
           locate: true
         });
@@ -272,7 +271,7 @@ export default function BarcodeScanner({
           }
         });
         
-        // Add processing visualization for better feedback
+        // Simplified processing visualization without red lines
         Quagga.onProcessed((result) => {
           const drawingCtx = Quagga.canvas.ctx.overlay;
           const drawingCanvas = Quagga.canvas.dom.overlay;
@@ -287,34 +286,17 @@ export default function BarcodeScanner({
             Number(drawingCanvas.getAttribute("height"))
           );
 
-          if (result) {
-            // Draw boxes for potential barcodes
-            if (result.boxes) {
-              result.boxes
-                .filter((box: any) => box !== result.box)
-                .forEach((box: any) => {
-                  Quagga.ImageDebug.drawPath(box, { x: 0, y: 1 }, drawingCtx, { 
-                    color: "green", 
-                    lineWidth: 2 
-                  });
-                });
-            }
-
-            // Highlight the main detected box
-            if (result.box) {
-              Quagga.ImageDebug.drawPath(result.box, { x: 0, y: 1 }, drawingCtx, { 
-                color: "blue", 
-                lineWidth: 2 
-              });
-            }
-
-            // Draw the scan line for successful reads
-            if (result.codeResult && result.codeResult.code) {
-              Quagga.ImageDebug.drawPath(result.line, { x: 'x', y: 'y' }, drawingCtx, { 
-                color: "red", 
-                lineWidth: 3 
-              });
-            }
+          // We're not drawing any debug lines or boxes to keep the UI clean
+          // This helps users focus on the green targeting box instead
+          
+          // Only highlight successful reads with a subtle indicator
+          if (result && result.codeResult && result.codeResult.code) {
+            // Draw a subtle green indicator at the bottom of the screen
+            const width = Number(drawingCanvas.getAttribute("width"));
+            const height = Number(drawingCanvas.getAttribute("height"));
+            
+            drawingCtx.fillStyle = "rgba(0, 200, 0, 0.5)";
+            drawingCtx.fillRect(0, height - 5, width, 5);
           }
         });
       } catch (error) {
@@ -381,9 +363,9 @@ export default function BarcodeScanner({
       <div className="bg-background rounded-lg shadow-lg w-full max-w-md overflow-hidden animate-in fade-in-0 zoom-in-95">
         <div className="p-4 border-b flex justify-between items-center">
           <div>
-            <h2 className="text-xl font-bold">Scan Barcode</h2>
+            <h2 className="text-xl font-bold text-[#004BFE]">Scan Barcode</h2>
             <p className="text-sm text-muted-foreground">
-              Position the barcode within the scanner area
+              Position the barcode within the green box
             </p>
           </div>
           <Button variant="ghost" size="icon" onClick={handleClose} className="h-8 w-8">
@@ -449,13 +431,18 @@ export default function BarcodeScanner({
             }}
           >
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-3/5 h-1/4 border-2 border-red-500 border-dashed rounded-lg">
-                {/* Add crosshair for better targeting */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-1/2 h-0.5 bg-red-500"></div>
-                </div>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-0.5 h-1/2 bg-red-500"></div>
+              <div className="w-2/5 h-1/3 border-2 border-[#004BFE] rounded-lg relative">
+                {/* Corner indicators for better targeting */}
+                <div className="absolute -top-1 -left-1 w-3 h-3 border-t-2 border-l-2 border-green-500"></div>
+                <div className="absolute -top-1 -right-1 w-3 h-3 border-t-2 border-r-2 border-green-500"></div>
+                <div className="absolute -bottom-1 -left-1 w-3 h-3 border-b-2 border-l-2 border-green-500"></div>
+                <div className="absolute -bottom-1 -right-1 w-3 h-3 border-b-2 border-r-2 border-green-500"></div>
+                
+                {/* Helper text */}
+                <div className="absolute -top-7 left-0 right-0 text-center">
+                  <span className="text-xs text-white bg-black/50 px-2 py-1 rounded-full">
+                    Aim barcode here
+                  </span>
                 </div>
               </div>
             </div>

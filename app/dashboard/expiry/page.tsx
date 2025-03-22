@@ -188,14 +188,16 @@ export default function ExpiryPage() {
   }, [])
 
   return (
-    <div className="container mx-auto max-w-md pt-4 pb-8">
-      <div className="mb-8 bg-gradient-to-r from-primary/10 to-secondary/10 p-6 rounded-2xl -mt-2">
-        <h1 className="text-xl font-bold text-[#004BFE]">Good evening, {user?.name || 'User'}, welcome to your Expiry Tracker dashboard</h1>
+    <div className="container mx-auto max-w-md pb-8">
+      {/* New Header with Blue Background */}
+      <div className="-mx-4 -mt-4 bg-[#004BFE] text-white p-6 pt-10 pb-10 rounded-b-3xl mb-6">
+        <h1 className="text-2xl font-bold">Good evening, {user?.name || 'User'}</h1>
+        <p className="text-white/80 mt-1">Manage your product expiry dates</p>
       </div>
       
-      <div className="mb-8 bg-card rounded-xl border border-border shadow-sm p-6">
-        <h2 className="section-title mb-4">
-          <Barcode className="h-5 w-5 mr-2 text-primary" />
+      <div className="mb-8 bg-white rounded-xl shadow-md p-6 mx-4">
+        <h2 className="text-lg font-bold mb-4 flex items-center">
+          <Barcode className="h-5 w-5 mr-2 text-[#004BFE]" />
           Scan Barcode
         </h2>
         

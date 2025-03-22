@@ -61,7 +61,7 @@ export function MobileNav() {
           )}
         >
           <item.icon className="mobile-nav-icon" />
-          <span>{item.label}</span>
+          <span className="text-xs">{item.label}</span>
         </Link>
       ))}
     </nav>

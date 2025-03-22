@@ -37,6 +37,7 @@ export default function ProductsPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+  const [isAddingProduct, setIsAddingProduct] = useState(false)
   const [isScannerActive, setIsScannerActive] = useState(false)
   const [isScannerDialogOpen, setIsScannerDialogOpen] = useState(false)
   const [isQuickScannerOpen, setIsQuickScannerOpen] = useState(false)
@@ -114,6 +115,9 @@ export default function ProductsPage() {
       return
     }
 
+    // Set loading state
+    setIsAddingProduct(true)
+
     try {
       console.log("Starting product creation process...")
       console.log("Form data:", { ...formData, image: formData.image ? "[File object]" : null })
@@ -126,6 +130,7 @@ export default function ProductsPage() {
           description: "Barcode and product name are required",
           variant: "destructive",
         })
+        setIsAddingProduct(false)
         return
       }
 
@@ -204,8 +209,10 @@ export default function ProductsPage() {
       resetForm()
       
       toast({
-        title: "Success",
+        title: "✅ Success",
         description: "Product added successfully",
+        className: "bg-white border border-green-200 text-green-800",
+        variant: "default"
       })
     } catch (error) {
       console.error("Failed to add product:", error)
@@ -214,6 +221,9 @@ export default function ProductsPage() {
         description: "Failed to add product",
         variant: "destructive",
       })
+    } finally {
+      // Reset loading state
+      setIsAddingProduct(false)
     }
   }
 
@@ -459,28 +469,34 @@ export default function ProductsPage() {
   }
 
   return (
-    <div className="container mx-auto max-w-4xl pt-4 pb-8">
+    <div className="container mx-auto max-w-4xl pb-8">
       <BackToTop />
-      <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center bg-gradient-to-r from-primary/10 to-secondary/10 p-6 rounded-2xl -mt-2">
-        <h1 className="text-xl font-bold text-[#004BFE]">Good evening, {user?.name || 'User'}, welcome to your Products dashboard</h1>
-        
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <div className="relative">
-            <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Search products..."
-              className="pl-8"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
+      {/* New Header with Blue Background */}
+      <div className="-mx-4 -mt-4 bg-[#004BFE] text-white p-6 pt-10 pb-16 rounded-b-3xl">
+        <h1 className="text-2xl font-bold">Good evening, {user?.name || 'User'}</h1>
+        <p className="text-white/80 mt-1">Manage your product inventory</p>
+      </div>
+      
+      {/* Search and Filter Components in a Card */}
+      <div className="-mt-10 mx-4 bg-white rounded-xl shadow-md p-4 mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <Input
+            placeholder="Search products..."
+            className="pl-10 rounded-full border-gray-200 bg-gray-50"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
 
+        <div className="flex gap-2">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button 
                   variant="outline" 
                   size="icon"
+                  className="rounded-full border-gray-200"
                   onClick={() => {
                     setScannerMode('search')
                     setIsQuickScannerOpen(true)
@@ -502,10 +518,13 @@ export default function ProductsPage() {
             </Tooltip>
           </TooltipProvider>
           
-          <Button onClick={() => {
-            resetForm()
-            setIsAddDialogOpen(true)
-          }}>
+          <Button 
+            onClick={() => {
+              resetForm()
+              setIsAddDialogOpen(true)
+            }}
+            className="rounded-full bg-[#004BFE] hover:bg-[#004BFE]/90"
+          >
             <Plus className="mr-2 h-4 w-4" />
             Add Product
           </Button>
@@ -513,14 +532,14 @@ export default function ProductsPage() {
       </div>
       
       {filteredProducts.length === 0 ? (
-        <div className="flex h-[60vh] flex-col items-center justify-center bg-muted/50 rounded-xl p-8">
-          <Package className="h-16 w-16 text-primary/60" />
+        <div className="flex h-[60vh] flex-col items-center justify-center bg-gray-100 rounded-xl p-8 mx-4">
+          <Package className="h-16 w-16 text-[#004BFE]/60" />
           <h2 className="mt-6 text-xl font-semibold">
             {products.length === 0
               ? "No products found"
               : "No products match your search"}
           </h2>
-          <p className="mt-3 text-center text-muted-foreground max-w-md">
+          <p className="mt-3 text-center text-gray-500 max-w-md">
             {products.length === 0
               ? "Start by adding your first product to begin tracking inventory"
               : "Try a different search term or clear your filters"}
@@ -531,7 +550,7 @@ export default function ProductsPage() {
                 resetForm()
                 setIsAddDialogOpen(true)
               }}
-              className="mt-6 rounded-full bg-primary hover:bg-primary/90"
+              className="mt-6 rounded-full bg-[#004BFE] hover:bg-[#004BFE]/90"
             >
               <Plus className="mr-2 h-4 w-4" />
               Add First Product
@@ -539,9 +558,9 @@ export default function ProductsPage() {
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 px-4">
           {filteredProducts.map((product) => (
-            <div key={product.$id} className="product-card">
+            <div key={product.$id} className="product-card bg-[#E8F4F8]">
               <div className="product-image">
                 {product.image_id ? (
                   <div className="relative h-full w-full">
@@ -718,7 +737,20 @@ export default function ProductsPage() {
               <Button type="button" variant="outline" onClick={() => setIsAddDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button type="submit">Add Product</Button>
+              <Button 
+                type="submit" 
+                disabled={isAddingProduct}
+                className="rounded-full bg-[#004BFE] hover:bg-[#004BFE]/90"
+              >
+                {isAddingProduct ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Adding...
+                  </>
+                ) : (
+                  "Add Product"
+                )}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>

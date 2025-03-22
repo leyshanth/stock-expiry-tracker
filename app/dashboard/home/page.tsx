@@ -152,76 +152,75 @@ export default function HomePage() {
   }
 
   return (
-    <main className="container pt-4 pb-8 space-y-10">
+    <main className="container pb-8 space-y-6">
       <BackToTop />
-      <div className="flex flex-col space-y-3 bg-gradient-to-r from-primary/10 to-secondary/10 p-6 rounded-2xl -mt-2">
-        <h1 className="text-xl font-bold text-[#004BFE]">{greeting}, {user?.name || 'User'}, welcome to your Stock & Expiry Tracker dashboard</h1>
+      {/* New Header with Blue Background */}
+      <div className="-mx-4 -mt-4 bg-[#004BFE] text-white p-6 pt-10 pb-16 rounded-b-3xl">
+        <h1 className="text-2xl font-bold">{greeting} {user?.name || 'User'}</h1>
+        <p className="text-white/80 mt-1">Welcome to your Date Expiry Tracker App</p>
       </div>
 
-      {/* Upcoming Expiry Items */}
-      <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <h2 className="section-title">
-            <Calendar className="h-5 w-5 mr-2 text-primary" />
-            Upcoming Expiry Items
-          </h2>
-          <Button asChild size="sm" className="rounded-full bg-primary hover:bg-primary/90">
+      {/* Filter Tabs - Moved up into a card that overlaps the header */}
+      <div className="-mt-10 mx-4 bg-white rounded-xl shadow-md p-2 flex overflow-x-auto space-x-2">
+        <button 
+          className={`px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${activeFilter === 'all' ? 'bg-[#004BFE] text-white' : 'bg-gray-100 text-gray-600'}`}
+          onClick={() => setActiveFilter('all')}
+        >
+          All
+        </button>
+        <button 
+          className={`px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${activeFilter === 'today' ? 'bg-[#004BFE] text-white' : 'bg-gray-100 text-gray-600'}`}
+          onClick={() => setActiveFilter('today')}
+        >
+          Today
+        </button>
+        <button 
+          className={`px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${activeFilter === 'tomorrow' ? 'bg-[#004BFE] text-white' : 'bg-gray-100 text-gray-600'}`}
+          onClick={() => setActiveFilter('tomorrow')}
+        >
+          Tomorrow
+        </button>
+        <button 
+          className={`px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${activeFilter === 'week' ? 'bg-[#004BFE] text-white' : 'bg-gray-100 text-gray-600'}`}
+          onClick={() => setActiveFilter('week')}
+        >
+          This Week
+        </button>
+        <button 
+          className={`px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${activeFilter === 'expired' ? 'bg-[#004BFE] text-white' : 'bg-gray-100 text-gray-600'}`}
+          onClick={() => setActiveFilter('expired')}
+        >
+          This Month
+        </button>
+      </div>
+
+      {/* Upcoming Expiry Items with Add Button */}
+      <div className="px-4 mt-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-bold">Upcoming Expiry Items</h2>
+          <Button asChild size="sm" className="rounded-full bg-[#004BFE] hover:bg-[#004BFE]/90">
             <Link href="/dashboard/expiry">
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Add Item
+              <span className="mr-1">+</span> Add Expiry Item
             </Link>
           </Button>
         </div>
         
-        <div className="flex flex-wrap gap-2 pb-4 overflow-x-auto whitespace-nowrap">
-          <button 
-            className={`filter-button ${activeFilter === 'all' ? 'active' : ''}`}
-            onClick={() => setActiveFilter('all')}
-          >
-            All Items
-          </button>
-          <button 
-            className={`filter-button ${activeFilter === 'today' ? 'active' : ''}`}
-            onClick={() => setActiveFilter('today')}
-          >
-            Expiring Today
-          </button>
-          <button 
-            className={`filter-button ${activeFilter === 'tomorrow' ? 'active' : ''}`}
-            onClick={() => setActiveFilter('tomorrow')}
-          >
-            Expiring Tomorrow
-          </button>
-          <button 
-            className={`filter-button ${activeFilter === 'week' ? 'active' : ''}`}
-            onClick={() => setActiveFilter('week')}
-          >
-            This Week
-          </button>
-          <button 
-            className={`filter-button ${activeFilter === 'expired' ? 'active' : ''}`}
-            onClick={() => setActiveFilter('expired')}
-          >
-            Expired
-          </button>
-        </div>
-        
         {getFilteredExpiryItems().length === 0 ? (
-          <div className="bg-muted/50 rounded-xl p-8 text-center">
+          <div className="bg-gray-100 rounded-xl p-8 text-center mt-4">
             <AlertTriangle className="mx-auto h-12 w-12 text-yellow-500 mb-4" />
             <h3 className="text-lg font-medium">No expiry items found</h3>
-            <p className="text-muted-foreground mt-2">Start tracking product expiry dates by adding items.</p>
-            <Button asChild className="mt-6 rounded-full">
+            <p className="text-gray-500 mt-2">Start tracking product expiry dates by adding items.</p>
+            <Button asChild className="mt-6 rounded-full bg-[#004BFE] hover:bg-[#004BFE]/90">
               <Link href="/dashboard/expiry">Add Expiry Item</Link>
             </Button>
           </div>
         ) : (
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          <div className="space-y-4 mt-4">
             {getFilteredExpiryItems().slice(0, 6).map((item) => {
               const { status, color, textColor } = getExpiryStatus(item.expiry_date)
               return (
-                <div key={item.$id} className={`dashboard-card ${color} overflow-hidden`}>
-                  <div className="relative w-full h-48 overflow-hidden">
+                <div key={item.$id} className="bg-[#E8F4F8] rounded-xl overflow-hidden flex mb-4">
+                  <div className="relative w-1/3 h-auto overflow-hidden">
                     {item.product?.image_id ? (
                       <div className="relative h-full w-full">
                         <img
@@ -241,7 +240,7 @@ export default function HomePage() {
                         />
                       </div>
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-muted">
+                      <div className="flex h-full w-full items-center justify-center bg-gray-200">
                         <img
                           src={'/placeholder-image.svg'}
                           alt="No image available"
@@ -249,25 +248,18 @@ export default function HomePage() {
                         />
                       </div>
                     )}
-                    <div className={`expiry-badge ${textColor} bg-white/90 backdrop-blur-sm`}>
-                      {status}
-                    </div>
                   </div>
-                  <div className="p-4">
-                    <h3 className="text-lg font-semibold mb-2">
-                      {item.product?.name || "Unknown Product"}
+                  <div className="p-4 w-2/3">
+                    <h3 className="text-lg font-semibold">
+                      {item.product?.name || "Item Name"}
                     </h3>
-                    <div className="grid grid-cols-2 gap-2 text-sm mb-4">
-                      <div className="text-muted-foreground">Quantity:</div>
-                      <div className="font-medium">{item.quantity}</div>
-                      <div className="text-muted-foreground">Expiry Date:</div>
-                      <div className="font-medium">{format(new Date(item.expiry_date), "MMM d, yyyy")}</div>
-                    </div>
+                    <p className="text-gray-500 mt-1">Expiry Date: {format(new Date(item.expiry_date), "dd/MM/yyyy")}</p>
+                    <p className="text-gray-500">Qty - {item.quantity}</p>
                     <button 
                       onClick={() => item.$id ? handleDeleteItem(item.$id) : undefined}
-                      className="w-full py-2 px-4 rounded-full bg-red-500 hover:bg-red-600 text-white font-medium flex items-center justify-center transition-colors"
+                      className="mt-2 py-1 px-3 rounded-full bg-red-500 hover:bg-red-600 text-white text-xs font-medium flex items-center justify-center transition-colors w-auto inline-flex"
                     >
-                      <Trash2 className="mr-2 h-4 w-4" />
+                      <Trash2 className="mr-1 h-3 w-3" />
                       Delete
                     </button>
                   </div>
@@ -279,14 +271,12 @@ export default function HomePage() {
         
         {getFilteredExpiryItems().length > 6 && (
           <div className="text-center mt-6">
-            <Button asChild variant="outline" className="rounded-full px-6">
+            <Button asChild variant="outline" className="rounded-full px-6 border-[#004BFE] text-[#004BFE]">
               <Link href="/dashboard/expiry">View All Expiry Items</Link>
             </Button>
           </div>
         )}
       </div>
-
-
     </main>
   )
 }
