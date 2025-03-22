@@ -217,11 +217,11 @@ export default function BarcodeScanner({
               aspectRatio: { ideal: 1.777778 }, // 16:9 aspect ratio
             },
             area: { 
-              // FIXED: Perfectly align scan area with the 40% width, 33% height UI element
-              top: "33.5%",
-              right: "30%",  // 100% - 40% = 60%, half of that is 30%
-              left: "30%",   
-              bottom: "33.5%",
+              // FIXED: Completely revised scanning area to better capture barcodes
+              top: "25%",    // Expanded top offset for better detection
+              right: "20%",  // Expanded right offset for better detection
+              left: "20%",   // Expanded left offset for better detection
+              bottom: "25%", // Expanded bottom offset for better detection
             },
             willReadFrequently: true
           },

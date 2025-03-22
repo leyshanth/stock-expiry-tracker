@@ -426,7 +426,7 @@ export default function ExpiryPage() {
                 <div className="flex items-center space-x-4">
                   {product.image_id ? (
                     <div className="h-16 w-16 overflow-hidden rounded-lg">
-                      <Image
+                      <img
                         src={databaseService.getFilePreview(product.image_id)}
                         alt={product.name}
                         width={64}

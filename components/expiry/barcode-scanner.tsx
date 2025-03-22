@@ -205,11 +205,11 @@ export default function BarcodeScanner({
               aspectRatio: { ideal: 1.777778 },
             },
             area: {
-              // FIXED: Adjusted scan area to align with the visible green targeting box
-              top: "33.5%",    // Slightly adjusted to match visible target
-              right: "30%",   
-              left: "30%",   
-              bottom: "33.5%", 
+              // FIXED: Completely revised scanning area to better capture barcodes
+              top: "25%",    // Expanded top offset for better detection
+              right: "20%",  // Expanded right offset for better detection
+              left: "20%",   // Expanded left offset for better detection
+              bottom: "25%", // Expanded bottom offset for better detection
             },
             willReadFrequently: true
           },

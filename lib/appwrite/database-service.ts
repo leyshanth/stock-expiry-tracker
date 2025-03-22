@@ -331,9 +331,16 @@ export class DatabaseService {
     }
     
     try {
-      // Use the storage.getFileView method to generate a proper URL
-      // This ensures the correct authentication and URL format
-      return storage.getFileView(BUCKET_ID, fileId).toString();
+      // Get the endpoint and project ID from environment variables
+      const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1';
+      const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID || '';
+      
+      // Construct a direct URL to the file preview
+      // This format works reliably with Appwrite's storage service
+      const previewUrl = `${endpoint}/storage/buckets/${BUCKET_ID}/files/${fileId}/preview?project=${projectId}`;
+      
+      console.log('Generated image preview URL:', previewUrl);
+      return previewUrl;
     } catch (error) {
       console.error('Error generating file URL:', error);
       // Return a placeholder image URL if there's an error
