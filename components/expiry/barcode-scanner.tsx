@@ -205,11 +205,11 @@ export default function BarcodeScanner({
               aspectRatio: { ideal: 1.777778 },
             },
             area: {
-              // FIXED: Completely revised scanning area to better capture barcodes
-              top: "25%",    // Expanded top offset for better detection
-              right: "20%",  // Expanded right offset for better detection
-              left: "20%",   // Expanded left offset for better detection
-              bottom: "25%", // Expanded bottom offset for better detection
+              // Configured for horizontal line scanning pattern
+              top: "45%",    // Center the scan area around the horizontal line
+              right: "10%",  // Wide horizontal coverage
+              left: "10%",   // Wide horizontal coverage
+              bottom: "55%", // Narrow vertical band around the line
             },
             willReadFrequently: true
           },
@@ -432,18 +432,15 @@ export default function BarcodeScanner({
             }}
           >
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              {/* UPDATED: Using a true-center positioning to ensure alignment with scan area */}
-              <div className="w-2/5 h-1/3 border-2 border-[#004BFE] rounded-lg relative" id="scanner-target-box">
-                {/* Corner indicators for better targeting */}
-                <div className="absolute -top-1 -left-1 w-3 h-3 border-t-2 border-l-2 border-green-500"></div>
-                <div className="absolute -top-1 -right-1 w-3 h-3 border-t-2 border-r-2 border-green-500"></div>
-                <div className="absolute -bottom-1 -left-1 w-3 h-3 border-b-2 border-l-2 border-green-500"></div>
-                <div className="absolute -bottom-1 -right-1 w-3 h-3 border-b-2 border-r-2 border-green-500"></div>
+              {/* Replaced green box with horizontal scanning line */}
+              <div className="relative w-full flex flex-col items-center" id="scanner-target-line">
+                {/* Red horizontal scanning line */}
+                <div className="w-4/5 h-1 bg-red-500 animate-pulse shadow-lg shadow-red-500/50"></div>
                 
                 {/* Helper text */}
-                <div className="absolute -top-7 left-0 right-0 text-center">
+                <div className="mt-3 text-center">
                   <span className="text-xs text-white bg-black/50 px-2 py-1 rounded-full">
-                    Aim barcode here
+                    Align barcode with red line
                   </span>
                 </div>
               </div>
