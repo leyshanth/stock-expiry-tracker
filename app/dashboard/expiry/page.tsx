@@ -188,10 +188,10 @@ export default function ExpiryPage() {
   }, [])
 
   return (
-    <div className="container mx-auto max-w-md pb-8">
+    <div className="pb-8">
       {/* New Header with Blue Background */}
-      <div className="-mx-4 -mt-4 bg-[#004BFE] text-white p-6 pt-10 pb-10 rounded-b-3xl mb-6">
-        <h1 className="text-2xl font-bold">Good evening, {user?.name || 'User'}</h1>
+      <div className="bg-[#004BFE] text-white p-4 pt-6 pb-10 rounded-b-3xl mb-6">
+        <h1 className="text-xl font-bold">Good evening, {user?.name || 'User'}</h1>
         <p className="text-white/80 mt-1">Manage your product expiry dates</p>
       </div>
       
