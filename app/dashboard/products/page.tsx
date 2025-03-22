@@ -496,7 +496,7 @@ export default function ProductsPage() {
                 <Button 
                   variant="outline" 
                   size="icon"
-                  className="rounded-full border-gray-200"
+                  className="rounded-full border-gray-200 bg-black text-white hover:bg-black/90"
                   onClick={() => {
                     setScannerMode('search')
                     setIsQuickScannerOpen(true)

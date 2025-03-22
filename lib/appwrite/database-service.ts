@@ -202,11 +202,15 @@ export class DatabaseService {
         Query.equal('user_id', [userId]),  // Use array format for Query parameters
       ];
       
-      if (!includeDeleted) {
-        queries.push(Query.equal('is_deleted', [false]));  // Use array format for Query parameters
+      if (includeDeleted) {
+        // Only show deleted items when specifically requested
+        queries.push(Query.equal('is_deleted', [true]));
+        queries.push(Query.orderDesc('deleted_at'));
+      } else {
+        // Only show non-deleted items on the home page
+        queries.push(Query.equal('is_deleted', [false]));
+        queries.push(Query.orderAsc('expiry_date'));
       }
-      
-      queries.push(Query.orderAsc('expiry_date'));
       
       const result = await databases.listDocuments(
         DATABASE_ID,

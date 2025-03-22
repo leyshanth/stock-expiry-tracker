@@ -8,16 +8,18 @@ import { databaseService, ExpiryItem, Product } from "@/lib/appwrite/database-se
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { AlertTriangle, PlusCircle, Trash2, Filter, Calendar } from "lucide-react"
-import { format, differenceInDays, isToday, isTomorrow } from "date-fns"
+import { AlertTriangle, PlusCircle, Trash2, Filter, Calendar, X } from "lucide-react"
+import { format, differenceInDays, isToday, isTomorrow, isWithinInterval } from "date-fns"
 import { useToast } from "@/components/ui/use-toast"
 import { BackToTop } from "@/components/ui/back-to-top"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
 
 interface ExpiryItemWithProduct extends ExpiryItem {
   product?: Product;
 }
 
-type ExpiryFilter = 'all' | 'today' | 'tomorrow' | 'week' | 'expired';
+type ExpiryFilter = 'all' | 'today' | 'tomorrow' | 'week' | 'expired' | 'dateRange';
 
 export default function HomePage() {
   const { user } = useAuth()
@@ -27,6 +29,11 @@ export default function HomePage() {
   const [expiryItems, setExpiryItems] = useState<ExpiryItemWithProduct[]>([])
   const [isDeleting, setIsDeleting] = useState(false)
   const [activeFilter, setActiveFilter] = useState<ExpiryFilter>('all')
+  
+  // Date range filter state
+  const [showDateRangeDialog, setShowDateRangeDialog] = useState(false)
+  const [startDate, setStartDate] = useState(format(new Date(), "yyyy-MM-dd"))
+  const [endDate, setEndDate] = useState(format(new Date(), "yyyy-MM-dd"))
   
   // Set greeting based on time of day
   useEffect(() => {
@@ -134,10 +141,25 @@ export default function HomePage() {
           const daysUntil = differenceInDays(new Date(item.expiry_date), today)
           return daysUntil < 0
         })
+      case 'dateRange':
+        return expiryItems.filter(item => {
+          const itemDate = new Date(item.expiry_date)
+          const rangeStart = new Date(startDate)
+          const rangeEnd = new Date(endDate)
+          // Set time to end of day for the end date to include the full day
+          rangeEnd.setHours(23, 59, 59, 999)
+          return isWithinInterval(itemDate, { start: rangeStart, end: rangeEnd })
+        })
       case 'all':
       default:
         return expiryItems
     }
+  }
+  
+  // Apply date range filter
+  const applyDateRangeFilter = () => {
+    setActiveFilter('dateRange')
+    setShowDateRangeDialog(false)
   }
 
   if (loading) {
@@ -190,7 +212,14 @@ export default function HomePage() {
           className={`px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${activeFilter === 'expired' ? 'bg-[#004BFE] text-white' : 'bg-gray-100 text-gray-600'}`}
           onClick={() => setActiveFilter('expired')}
         >
-          This Month
+          Expired
+        </button>
+        <button 
+          className={`px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap flex items-center ${activeFilter === 'dateRange' ? 'bg-[#004BFE] text-white' : 'bg-gray-100 text-gray-600'}`}
+          onClick={() => setShowDateRangeDialog(true)}
+        >
+          <Filter className="h-3 w-3 mr-1" />
+          Filter
         </button>
       </div>
 
@@ -277,6 +306,58 @@ export default function HomePage() {
           </div>
         )}
       </div>
+      
+      {/* Date Range Filter Dialog */}
+      <Dialog open={showDateRangeDialog} onOpenChange={setShowDateRangeDialog}>
+        <DialogContent className="sm:max-w-md rounded-xl">
+          <DialogHeader>
+            <DialogTitle>Filter by Date Range</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label htmlFor="startDate" className="text-sm font-medium">Start Date</label>
+              <Input
+                id="startDate"
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="rounded-lg"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label htmlFor="endDate" className="text-sm font-medium">End Date</label>
+              <Input
+                id="endDate"
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="rounded-lg"
+              />
+            </div>
+          </div>
+          
+          <DialogFooter className="flex justify-between sm:justify-between">
+            <Button
+              variant="outline"
+              onClick={() => setShowDateRangeDialog(false)}
+              className="rounded-full"
+            >
+              <X className="mr-2 h-4 w-4" />
+              Cancel
+            </Button>
+            
+            <Button
+              onClick={applyDateRangeFilter}
+              className="rounded-full bg-[#004BFE] hover:bg-[#004BFE]/90"
+            >
+              <Filter className="mr-2 h-4 w-4" />
+              Apply Filter
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </main>
   )
 }

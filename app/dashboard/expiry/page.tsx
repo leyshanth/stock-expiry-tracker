@@ -8,10 +8,11 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
-import { Barcode, Camera, Check, X, AlertTriangle } from "lucide-react"
+import { Barcode, Camera, Check, X, AlertTriangle, Plus } from "lucide-react"
 import { format } from "date-fns"
 import Image from "next/image"
 import { formatCurrency } from "@/lib/utils"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 // Import Quagga dynamically since it's a client-side only library
 import dynamic from "next/dynamic"
@@ -26,6 +27,157 @@ const QuaggaScanner = dynamic(() => import("@/components/expiry/barcode-scanner"
     </div>
   ),
 })
+
+// Add Product Dialog component
+function AddProductDialog({
+  open,
+  onOpenChange,
+  barcode,
+  onProductAdded,
+}: {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  barcode: string
+  onProductAdded: (product: Product) => void
+}) {
+  const { user } = useAuth()
+  const { toast } = useToast()
+  const [newProductName, setNewProductName] = useState("")
+  const [newProductPrice, setNewProductPrice] = useState("")
+  const [isAddingProduct, setIsAddingProduct] = useState(false)
+
+  // Handle adding a new product
+  const handleAddProduct = async () => {
+    if (!user || !barcode || !newProductName) return
+    
+    try {
+      setIsAddingProduct(true)
+      
+      // Create new product
+      const newProduct = await databaseService.createProduct({
+        user_id: user.$id,
+        barcode,
+        name: newProductName,
+        price: newProductPrice ? parseFloat(newProductPrice) : 0,
+        category: "",
+        weight: "",
+        image_id: "",
+      })
+      
+      if (newProduct) {
+        toast({
+          title: "Product Added",
+          description: `${newProductName} has been added successfully.`,
+        })
+        
+        // Close dialog and set the new product
+        onOpenChange(false)
+        onProductAdded(newProduct)
+        
+        // Reset form
+        setNewProductName("")
+        setNewProductPrice("")
+      }
+    } catch (error) {
+      console.error("Failed to add product:", error)
+      toast({
+        title: "Error",
+        description: "Failed to add the product. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsAddingProduct(false)
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Add New Product</DialogTitle>
+          <DialogDescription>
+            This product doesn't exist in your inventory. Please add it first.
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <label htmlFor="newBarcode" className="text-sm font-medium">
+              Barcode
+            </label>
+            <Input
+              id="newBarcode"
+              value={barcode}
+              disabled
+              className="rounded-lg"
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <label htmlFor="newProductName" className="text-sm font-medium flex items-center">
+              <span className="mr-1">Product Name</span>
+              <span className="text-red-500">*</span>
+            </label>
+            <Input
+              id="newProductName"
+              value={newProductName}
+              onChange={(e) => setNewProductName(e.target.value)}
+              className="rounded-lg"
+              required
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <label htmlFor="newProductPrice" className="text-sm font-medium">
+              Price
+            </label>
+            <Input
+              id="newProductPrice"
+              type="number"
+              min="0"
+              step="0.01"
+              value={newProductPrice}
+              onChange={(e) => setNewProductPrice(e.target.value)}
+              className="rounded-lg"
+              placeholder="0.00"
+            />
+          </div>
+        </div>
+        
+        <DialogFooter className="flex justify-between sm:justify-between">
+          <Button
+            variant="outline"
+            onClick={() => {
+              onOpenChange(false)
+              setNewProductName("")
+              setNewProductPrice("")
+            }}
+          >
+            Cancel
+          </Button>
+          
+          <Button
+            onClick={handleAddProduct}
+            disabled={!newProductName || isAddingProduct}
+            className="bg-[#004BFE]"
+          >
+            {isAddingProduct ? (
+              <>
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent mr-2"></div>
+                Adding...
+              </>
+            ) : (
+              <>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Product
+              </>
+            )}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
 
 export default function ExpiryPage() {
   const { user } = useAuth()
@@ -44,6 +196,18 @@ export default function ExpiryPage() {
   const [quantity, setQuantity] = useState("1")
   const [expiryDate, setExpiryDate] = useState(format(new Date(), "yyyy-MM-dd"))
   const barcodeInputRef = useRef<HTMLInputElement>(null)
+  
+  // Add product dialog state
+  const [showAddProductDialog, setShowAddProductDialog] = useState(false)
+  
+  // Handle product added from dialog
+  const handleProductAdded = (newProduct: Product) => {
+    setProduct(newProduct)
+    toast({
+      title: "Success",
+      description: `${newProduct.name} has been added to your inventory.`,
+    })
+  }
 
   // Handle barcode detection
   const handleBarcodeDetected = async (barcode: string) => {
@@ -68,20 +232,13 @@ export default function ExpiryPage() {
         })
       } else {
         setProduct(null)
+        // Show dialog to add product instead of redirecting
+        setShowAddProductDialog(true)
+        setScannedBarcode(barcode)
         toast({
           title: "Product Not Found",
-          description: "Would you like to add this product?",
-          action: (
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => {
-                router.push(`/dashboard/products?barcode=${barcode}`)
-              }}
-            >
-              Add Product
-            </Button>
-          ),
+          description: "Please add this product first",
+          variant: "destructive"
         })
       }
     } catch (error) {
@@ -186,203 +343,195 @@ export default function ExpiryPage() {
       barcodeInputRef.current.focus()
     }
   }, [])
-
+  
   return (
     <div className="pb-8">
-      {/* New Header with Blue Background */}
-      <div className="bg-[#004BFE] text-white p-4 pt-6 pb-10 rounded-b-3xl mb-6">
-        <h1 className="text-xl font-bold">Good evening, {user?.name || 'User'}</h1>
-        <p className="text-white/80 mt-1">Manage your product expiry dates</p>
-      </div>
-      
-      <div className="mb-8 bg-white rounded-xl shadow-md p-6 mx-4">
-        <h2 className="text-lg font-bold mb-4 flex items-center">
-          <Barcode className="h-5 w-5 mr-2 text-[#004BFE]" />
-          Scan Barcode
-        </h2>
+      <div className="flex flex-col space-y-6">
+        <div className="pt-4 pb-8 -mt-2">
+          <h2 className="text-xl font-semibold text-[#004BFE]">Add Expiry Information</h2>
+          <p className="text-muted-foreground">Scan a product barcode to add expiry information</p>
+        </div>
         
-        <div className="space-y-4">
-          {isScannerActive ? (
-            <div className="relative">
-              <QuaggaScanner onDetected={handleBarcodeDetected} />
-              <Button
-                variant="outline"
-                size="sm"
-                className="absolute bottom-2 right-2"
-                onClick={() => setIsScannerActive(false)}
-              >
-                <X className="mr-2 h-4 w-4" />
-                Cancel
-              </Button>
-            </div>
-          ) : (
-            <Button 
-              className="w-full rounded-full bg-primary hover:bg-primary/90" 
-              onClick={() => setIsScannerActive(true)}
-            >
-              <Camera className="mr-2 h-4 w-4" />
-              Scanner
-            </Button>
-          )}
-          
-          <div className="relative">
-            <form onSubmit={handleManualBarcodeSubmit} className="flex gap-2">
-              <div className="relative flex-1">
-                <Barcode className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  ref={barcodeInputRef}
-                  placeholder="Enter barcode manually"
-                  className="pl-10 rounded-full"
-                  value={scannedBarcode}
-                  onChange={(e) => setScannedBarcode(e.target.value)}
-                />
+        {!isScannerActive && !product ? (
+          <div className="grid gap-6 md:grid-cols-2">
+            <div>
+              <form onSubmit={handleManualBarcodeSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <label htmlFor="barcode" className="text-sm font-medium">
+                    Barcode
+                  </label>
+                  <div className="flex space-x-2">
+                    <Input
+                      id="barcode"
+                      ref={barcodeInputRef}
+                      value={scannedBarcode}
+                      onChange={(e) => setScannedBarcode(e.target.value)}
+                      className="flex-1 rounded-lg"
+                      placeholder="Enter barcode"
+                    />
+                    <Button 
+                      type="submit" 
+                      className="rounded-full bg-[#004BFE] hover:bg-[#004BFE]/90"
+                      disabled={!scannedBarcode || isLoading}
+                    >
+                      {isLoading ? (
+                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                      ) : (
+                        <Barcode className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </form>
+              
+              <div className="mt-6">
+                <Button
+                  onClick={() => setIsScannerActive(true)}
+                  className="w-full rounded-lg bg-[#004BFE] hover:bg-[#004BFE]/90"
+                >
+                  <Camera className="mr-2 h-4 w-4" />
+                  Scan Barcode
+                </Button>
               </div>
-              <Button type="submit" disabled={!scannedBarcode} className="rounded-full">
-                Search
-              </Button>
-            </form>
+            </div>
+            
+            <div className="hidden md:block">
+              <div className="flex h-full items-center justify-center rounded-lg border border-dashed p-8">
+                <div className="text-center">
+                  <Barcode className="mx-auto h-8 w-8 text-muted-foreground" />
+                  <h3 className="mt-4 text-lg font-medium">No Product Selected</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    Scan a barcode or enter it manually to get started
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+        ) : isScannerActive ? (
+          <div className="space-y-4">
+            <QuaggaScanner onDetected={handleBarcodeDetected} />
+            <Button 
+              variant="outline" 
+              onClick={() => setIsScannerActive(false)}
+              className="w-full rounded-lg"
+            >
+              <X className="mr-2 h-4 w-4" />
+              Cancel Scanning
+            </Button>
+          </div>
+        ) : product ? (
+          <div className="bg-card rounded-xl border border-border shadow-sm p-8">
+            <div className="grid gap-8 md:grid-cols-2">
+              <div className="space-y-6">
+                <div className="flex items-center space-x-4">
+                  {product.image_id ? (
+                    <div className="h-16 w-16 overflow-hidden rounded-lg">
+                      <Image
+                        src={databaseService.getFilePreview(product.image_id)}
+                        alt={product.name}
+                        width={64}
+                        height={64}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-muted">
+                      <Barcode className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                  )}
+                  
+                  <div>
+                    <h3 className="font-medium">{product.name}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Barcode: {product.barcode}
+                    </p>
+                    {product.price > 0 && (
+                      <p className="text-sm font-medium">
+                        {formatCurrency(product.price)}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label htmlFor="quantity" className="text-sm font-medium">
+                      Quantity
+                    </label>
+                    <Input
+                      id="quantity"
+                      type="number"
+                      min="1"
+                      value={quantity}
+                      onChange={(e) => setQuantity(e.target.value)}
+                      className="rounded-lg"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <label htmlFor="expiryDate" className="text-sm font-medium">
+                      Expiry Date
+                    </label>
+                    <Input
+                      id="expiryDate"
+                      type="date"
+                      value={expiryDate}
+                      onChange={(e) => setExpiryDate(e.target.value)}
+                      className="rounded-lg"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex flex-col justify-end space-y-4">
+                <Button 
+                  variant="outline" 
+                  onClick={handleCancel}
+                  className="rounded-full"
+                >
+                  <X className="mr-2 h-4 w-4" />
+                  Cancel
+                </Button>
+                
+                <Button onClick={handleSaveExpiry} className="rounded-full bg-[#004BFE] hover:bg-[#004BFE]/90">
+                  <Check className="mr-2 h-4 w-4" />
+                  Save Expiry
+                </Button>
+              </div>
+            </div>
+          </div>
+        ) : scannedBarcode ? (
+          <div className="bg-card rounded-xl border border-border shadow-sm p-8">
+            <div className="flex flex-col items-center justify-center text-center">
+              <AlertTriangle className="h-14 w-14 text-yellow-500" />
+              <h3 className="mt-4 text-lg font-semibold">Product Not Found</h3>
+              <p className="mt-2 text-muted-foreground max-w-xs mx-auto">
+                No product found with barcode: {scannedBarcode}
+              </p>
+              <div className="mt-6 flex gap-3">
+                <Button variant="outline" onClick={handleCancel} className="rounded-full">
+                  <X className="mr-2 h-4 w-4" />
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={() => setShowAddProductDialog(true)}
+                  className="rounded-full bg-[#004BFE] hover:bg-[#004BFE]/90"
+                >
+                  Add Product
+                </Button>
+              </div>
+            </div>
+          </div>
+        ) : null}
       </div>
       
-      {isLoading ? (
-        <div className="bg-card rounded-xl border border-border shadow-sm p-6">
-          <div className="flex items-center justify-center py-8">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-            <p className="ml-3 text-muted-foreground">Loading product information...</p>
-          </div>
-        </div>
-      ) : product ? (
-        <div className="bg-card rounded-xl border border-border shadow-sm p-6">
-          <h2 className="section-title mb-6">
-            <Check className="h-5 w-5 mr-2 text-primary" />
-            Product Information
-          </h2>
-          
-          <div className="space-y-6">
-            <div className="rounded-xl bg-muted/50 p-5">
-              <div className="flex items-start gap-5">
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold">{product.name}</h3>
-                  <div className="mt-2 space-y-1">
-                    <p className="flex justify-between">
-                      <span className="text-muted-foreground">Barcode:</span>
-                      <span className="font-medium">{product.barcode}</span>
-                    </p>
-                    {product.price !== undefined && (
-                      <p className="flex justify-between">
-                        <span className="text-muted-foreground">Price:</span>
-                        <span className="font-medium">{formatCurrency(product.price)}</span>
-                      </p>
-                    )}
-                    {product.weight && (
-                      <p className="flex justify-between">
-                        <span className="text-muted-foreground">Weight:</span>
-                        <span className="font-medium">{product.weight}</span>
-                      </p>
-                    )}
-                    {product.category && (
-                      <p className="flex justify-between">
-                        <span className="text-muted-foreground">Category:</span>
-                        <span className="font-medium">{product.category}</span>
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-              
-              {/* Product image in larger view */}
-              {product.image_id && (
-                <div className="mt-4 flex justify-center">
-                  <div className="relative h-48 w-full max-w-xs overflow-hidden rounded-lg bg-secondary">
-                    <img
-                      src="/placeholder-image.svg"
-                      alt="Placeholder"
-                      className="absolute h-full w-full object-contain"
-                    />
-                    <img
-                      src={databaseService.getFilePreview(product.image_id)}
-                      alt={product.name}
-                      className="absolute h-full w-full object-contain"
-                      onError={(e) => {
-                        // Hide the errored image to show placeholder
-                        (e.target as HTMLImageElement).style.display = 'none';
-                      }}
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-            
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <label htmlFor="quantity" className="text-sm font-medium flex items-center">
-                  <span className="mr-1">Quantity</span>
-                  <span className="text-red-500">*</span>
-                </label>
-                <Input
-                  id="quantity"
-                  type="number"
-                  min="1"
-                  value={quantity}
-                  onChange={(e) => setQuantity(e.target.value)}
-                  className="rounded-lg"
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <label htmlFor="expiryDate" className="text-sm font-medium flex items-center">
-                  <span className="mr-1">Expiry Date</span>
-                  <span className="text-red-500">*</span>
-                </label>
-                <Input
-                  id="expiryDate"
-                  type="date"
-                  value={expiryDate}
-                  onChange={(e) => setExpiryDate(e.target.value)}
-                  className="rounded-lg"
-                  required
-                />
-              </div>
-            </div>
-          </div>
-          
-          <div className="flex justify-between mt-8">
-            <Button variant="outline" onClick={handleCancel} className="rounded-full">
-              <X className="mr-2 h-4 w-4" />
-              Cancel
-            </Button>
-            
-            <Button onClick={handleSaveExpiry} className="rounded-full bg-primary hover:bg-primary/90">
-              <Check className="mr-2 h-4 w-4" />
-              Save Expiry
-            </Button>
-          </div>
-        </div>
-      ) : scannedBarcode ? (
-        <div className="bg-card rounded-xl border border-border shadow-sm p-8">
-          <div className="flex flex-col items-center justify-center text-center">
-            <AlertTriangle className="h-14 w-14 text-yellow-500" />
-            <h3 className="mt-4 text-lg font-semibold">Product Not Found</h3>
-            <p className="mt-2 text-muted-foreground max-w-xs mx-auto">
-              No product found with barcode: {scannedBarcode}
-            </p>
-            <div className="mt-6 flex gap-3">
-              <Button variant="outline" onClick={handleCancel} className="rounded-full">
-                <X className="mr-2 h-4 w-4" />
-                Cancel
-              </Button>
-              <Button 
-                onClick={() => router.push(`/dashboard/products?barcode=${scannedBarcode}`)}
-                className="rounded-full bg-primary hover:bg-primary/90"
-              >
-                Add Product
-              </Button>
-            </div>
-          </div>
-        </div>
-      ) : null}
+      {/* Use the AddProductDialog component */}
+      <AddProductDialog
+        open={showAddProductDialog}
+        onOpenChange={setShowAddProductDialog}
+        barcode={scannedBarcode}
+        onProductAdded={handleProductAdded}
+      />
     </div>
   )
 }

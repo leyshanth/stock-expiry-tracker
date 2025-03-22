@@ -216,11 +216,11 @@ export default function BarcodeScanner({
               facingMode: "environment", // Allow fallback to front camera if needed
               aspectRatio: { ideal: 1.777778 }, // 16:9 aspect ratio
             },
-            area: { // Define focused scan area for better small barcode detection
-              top: "35%",    // top offset
-              right: "25%",  // right offset
-              left: "25%",   // left offset
-              bottom: "35%", // bottom offset
+            area: { // Align scan area precisely with the green targeting box
+              top: "33%",    // top offset
+              right: "30%",  // right offset
+              left: "30%",   // left offset
+              bottom: "33%", // bottom offset
             },
             willReadFrequently: true
           },
@@ -228,8 +228,9 @@ export default function BarcodeScanner({
             patchSize: "medium", // Use medium patches for better small barcode detection
             halfSample: false    // Disable half sampling for more accurate detection
           },
+          debug: false,         // Disable debug visualization
           numOfWorkers: 4,       // Increase workers for faster processing
-          frequency: 10,         // Scan more frequently (10 scans per second)
+          frequency: 15,         // Scan more frequently (15 scans per second)
           decoder: {
             readers: ["ean_reader", "ean_8_reader", "code_128_reader", "upc_reader", "upc_e_reader"],
             multiple: false,     // Only detect one barcode at a time
@@ -297,6 +298,20 @@ export default function BarcodeScanner({
             
             drawingCtx.fillStyle = "rgba(0, 200, 0, 0.5)";
             drawingCtx.fillRect(0, height - 5, width, 5);
+          } else if (result && result.box) {
+            // Highlight detected barcode area with a subtle box to help with alignment
+            // This helps users see when a barcode is being detected but not yet recognized
+            drawingCtx.strokeStyle = "rgba(0, 255, 0, 0.3)";
+            drawingCtx.lineWidth = 2;
+            
+            // Draw the detected box
+            drawingCtx.beginPath();
+            drawingCtx.moveTo(result.box[0][0], result.box[0][1]);
+            result.box.forEach((point) => {
+              drawingCtx.lineTo(point[0], point[1]);
+            });
+            drawingCtx.closePath();
+            drawingCtx.stroke();
           }
         });
       } catch (error) {
@@ -431,7 +446,7 @@ export default function BarcodeScanner({
             }}
           >
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-2/5 h-1/3 border-2 border-[#004BFE] rounded-lg relative">
+              <div className="w-2/5 h-1/3 border-2 border-[#004BFE] rounded-lg relative" id="scanner-target-box">
                 {/* Corner indicators for better targeting */}
                 <div className="absolute -top-1 -left-1 w-3 h-3 border-t-2 border-l-2 border-green-500"></div>
                 <div className="absolute -top-1 -right-1 w-3 h-3 border-t-2 border-r-2 border-green-500"></div>
