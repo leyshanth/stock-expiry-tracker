@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authService } from "@/lib/appwrite/auth-service";
 import { useToast } from "@/components/ui/use-toast";
+import { Loader2 } from "lucide-react";
 import AuthLayout from "@/components/auth/auth-layout";
 
 export default function ForgotPasswordPage() {
@@ -81,10 +82,17 @@ export default function ForgotPasswordPage() {
 
         <button 
           type="submit" 
-          className="w-full p-4 bg-[#004BFE] text-white rounded-full font-medium text-xl mt-6"
+          className="w-full p-4 bg-[#004BFE] text-white rounded-full font-medium text-xl mt-6 flex items-center justify-center"
           disabled={isLoading}
         >
-          {isLoading ? "Sending..." : "Send Reset Link"}
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+              Sending...
+            </>
+          ) : (
+            "Send Reset Link"
+          )}
         </button>
 
         <div className="mt-4 text-center">

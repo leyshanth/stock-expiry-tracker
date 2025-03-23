@@ -9,13 +9,16 @@ import { useToast } from "@/components/ui/use-toast"
 import { formatDate } from "@/lib/utils/date-utils"
 import { exportToCsv } from "@/lib/utils/csv-export"
 import { exportToPdf } from "@/lib/utils/pdf-export"
-import { Download, Trash2, RotateCcw, AlertTriangle, FileText } from "lucide-react"
+import { Download, Trash2, RotateCcw, AlertTriangle, FileText, Loader2 } from "lucide-react"
 import { BackToTop } from "@/components/ui/back-to-top"
 
 export default function DeletedItemsPage() {
   const { user } = useAuth()
   const [deletedItems, setDeletedItems] = useState<(ExpiryItem & { product?: Product })[]>([])
   const [loading, setLoading] = useState(true)
+  const [isRestoring, setIsRestoring] = useState<string | null>(null)
+  const [isExportingCsv, setIsExportingCsv] = useState(false)
+  const [isExportingPdf, setIsExportingPdf] = useState(false)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -68,6 +71,7 @@ export default function DeletedItemsPage() {
     if (!user) return
 
     try {
+      setIsRestoring(itemId)
       await databaseService.restoreExpiryItem(itemId)
       
       // Update the local state
@@ -84,6 +88,8 @@ export default function DeletedItemsPage() {
         description: "Failed to restore item",
         variant: "destructive",
       })
+    } finally {
+      setIsRestoring(null)
     }
   }
 
@@ -125,6 +131,8 @@ export default function DeletedItemsPage() {
     }
 
     try {
+      setIsExportingCsv(true)
+      
       // Format data for CSV export
       const csvData = deletedItems.map((item) => ({
         Product: item.product?.name || "Unknown Product",
@@ -149,6 +157,8 @@ export default function DeletedItemsPage() {
         description: "Failed to export CSV file",
         variant: "destructive",
       })
+    } finally {
+      setIsExportingCsv(false)
     }
   }
   
@@ -161,6 +171,8 @@ export default function DeletedItemsPage() {
       })
       return
     }
+    
+    setIsExportingPdf(true)
 
     // Show loading toast
     toast({
@@ -185,6 +197,8 @@ export default function DeletedItemsPage() {
           description: "Failed to export PDF file. Please try again.",
           variant: "destructive",
         })
+      } finally {
+        setIsExportingPdf(false)
       }
     }, 100) // Small delay to ensure UI responsiveness
   }
@@ -215,19 +229,37 @@ export default function DeletedItemsPage() {
           <div className="flex space-x-2">
             <Button 
               onClick={handleExportCsv}
-              disabled={deletedItems.length === 0}
+              disabled={deletedItems.length === 0 || isExportingCsv || isExportingPdf}
               className="bg-[#004BFE] hover:bg-[#004BFE]/90 rounded-full"
             >
-              <Download className="mr-2 h-4 w-4" />
-              Export to CSV
+              {isExportingCsv ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Exporting...
+                </>
+              ) : (
+                <>
+                  <Download className="mr-2 h-4 w-4" />
+                  Export to CSV
+                </>
+              )}
             </Button>
             <Button 
               onClick={handleExportPdf}
-              disabled={deletedItems.length === 0}
+              disabled={deletedItems.length === 0 || isExportingPdf || isExportingCsv}
               className="bg-[#004BFE] hover:bg-[#004BFE]/90 rounded-full"
             >
-              <FileText className="mr-2 h-4 w-4" />
-              Export to PDF
+              {isExportingPdf ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Exporting...
+                </>
+              ) : (
+                <>
+                  <FileText className="mr-2 h-4 w-4" />
+                  Export to PDF
+                </>
+              )}
             </Button>
           </div>
         </div>
@@ -269,9 +301,19 @@ export default function DeletedItemsPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => handleRestore(item.$id!)}
+                        disabled={isRestoring === item.$id}
                       >
-                        <RotateCcw className="mr-2 h-4 w-4" />
-                        Restore
+                        {isRestoring === item.$id ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Restoring...
+                          </>
+                        ) : (
+                          <>
+                            <RotateCcw className="mr-2 h-4 w-4" />
+                            Restore
+                          </>
+                        )}
                       </Button>
                       
                       <Button

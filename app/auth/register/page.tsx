@@ -8,7 +8,7 @@ import { useAuth } from "@/lib/hooks/use-auth"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/components/ui/use-toast"
-import { Eye, EyeOff } from "lucide-react"
+import { Eye, EyeOff, Loader2 } from "lucide-react"
 import AuthLayout from "@/components/auth/auth-layout"
 
 export default function RegisterPage() {
@@ -147,10 +147,17 @@ export default function RegisterPage() {
 
         <button 
           type="submit" 
-          className="w-full p-4 bg-[#004BFE] text-white rounded-full font-medium text-xl mt-6"
+          className="w-full p-4 bg-[#004BFE] text-white rounded-full font-medium text-xl mt-6 flex items-center justify-center"
           disabled={isLoading}
         >
-          {isLoading ? "Creating account..." : "Register"}
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+              Creating account...
+            </>
+          ) : (
+            "Register"
+          )}
         </button>
 
         <div className="mt-4 text-center">

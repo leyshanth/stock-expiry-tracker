@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
-import { Barcode, Camera, Check, X, AlertTriangle, Plus, Edit, Package } from "lucide-react"
+import { Barcode, Camera, Check, X, AlertTriangle, Plus, Edit, Package, Loader2 } from "lucide-react"
 import { format } from "date-fns"
 import Image from "next/image"
 import { formatCurrency } from "@/lib/utils"
@@ -589,7 +589,7 @@ export default function ExpiryPage() {
               <Button type="submit" disabled={isAddingProduct} className="rounded-full bg-[#004BFE] hover:bg-[#004BFE]/90">
                 {isAddingProduct ? (
                   <>
-                    <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Adding...
                   </>
                 ) : (

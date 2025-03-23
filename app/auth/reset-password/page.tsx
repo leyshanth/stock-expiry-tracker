@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import Link from "next/link";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import AuthLayout from "@/components/auth/auth-layout";
 
 function ResetPasswordContent() {
@@ -151,10 +151,17 @@ function ResetPasswordContent() {
         
         <button 
           type="submit" 
-          className="w-full p-4 bg-[#004BFE] text-white rounded-full font-medium text-xl mt-6"
+          className="w-full p-4 bg-[#004BFE] text-white rounded-full font-medium text-xl mt-6 flex items-center justify-center"
           disabled={isLoading}
         >
-          {isLoading ? "Resetting Password..." : "Reset Password"}
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+              Resetting Password...
+            </>
+          ) : (
+            "Reset Password"
+          )}
         </button>
         
         <div className="mt-4 text-center">

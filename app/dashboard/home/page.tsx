@@ -9,7 +9,7 @@ import { useImagePopup } from "@/components/ui/image-popup-context"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { AlertTriangle, PlusCircle, Trash2, Filter, Calendar, X } from "lucide-react"
+import { AlertTriangle, PlusCircle, Trash2, Filter, Calendar, X, Loader2 } from "lucide-react"
 import { format, differenceInDays, isToday, isTomorrow, isWithinInterval } from "date-fns"
 import { useToast } from "@/components/ui/use-toast"
 import { BackToTop } from "@/components/ui/back-to-top"
@@ -29,7 +29,7 @@ export default function HomePage() {
   const [greeting, setGreeting] = useState("Good day")
   const [loading, setLoading] = useState(true)
   const [expiryItems, setExpiryItems] = useState<ExpiryItemWithProduct[]>([])
-  const [isDeleting, setIsDeleting] = useState(false)
+  const [isDeleting, setIsDeleting] = useState<string | null>(null)
   const [activeFilter, setActiveFilter] = useState<ExpiryFilter>('all')
   const [showAllItems, setShowAllItems] = useState(false)
   const itemsContainerRef = useRef<HTMLDivElement>(null)
@@ -78,11 +78,11 @@ export default function HomePage() {
 
   // Handle deleting an expiry item
   const handleDeleteItem = async (itemId: string) => {
-    if (!user || isDeleting) return
+    if (!user || isDeleting !== null) return
     
     if (confirm("Are you sure you want to delete this item?")) {
       try {
-        setIsDeleting(true)
+        setIsDeleting(itemId)
         
         // Mark the item as deleted instead of permanently deleting it
         await databaseService.markExpiryItemAsDeleted(itemId)
@@ -103,7 +103,7 @@ export default function HomePage() {
           variant: "destructive"
         })
       } finally {
-        setIsDeleting(false)
+        setIsDeleting(null)
       }
     }
   }
@@ -338,10 +338,20 @@ export default function HomePage() {
                     <p className="text-gray-600">Qty - {item.quantity}</p>
                     <button 
                       onClick={() => item.$id ? handleDeleteItem(item.$id) : undefined}
-                      className="mt-2 py-1 px-3 rounded-full bg-red-500 hover:bg-red-600 text-white text-xs font-medium flex items-center justify-center transition-colors w-auto inline-flex"
+                      disabled={isDeleting === item.$id}
+                      className="mt-2 py-1 px-3 rounded-full bg-red-500 hover:bg-red-600 text-white text-xs font-medium flex items-center justify-center transition-colors w-auto inline-flex disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <Trash2 className="mr-1 h-3 w-3" />
-                      Delete
+                      {isDeleting === item.$id ? (
+                        <>
+                          <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                          Deleting...
+                        </>
+                      ) : (
+                        <>
+                          <Trash2 className="mr-1 h-3 w-3" />
+                          Delete
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>

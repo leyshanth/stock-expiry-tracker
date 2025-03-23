@@ -40,6 +40,7 @@ export default function ProductsPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [isAddingProduct, setIsAddingProduct] = useState(false)
+  const [isEditingProduct, setIsEditingProduct] = useState(false)
   const [isScannerActive, setIsScannerActive] = useState(false)
   const [isScannerDialogOpen, setIsScannerDialogOpen] = useState(false)
   const [isQuickScannerOpen, setIsQuickScannerOpen] = useState(false)
@@ -253,6 +254,7 @@ export default function ProductsPage() {
     if (!user || !selectedProduct) return
 
     try {
+      setIsEditingProduct(true)
       // Validate form
       if (!formData.barcode || !formData.name) {
         toast({
@@ -349,6 +351,7 @@ export default function ProductsPage() {
       setIsEditDialogOpen(false)
       setSelectedProduct(null)
       resetForm()
+      setIsEditingProduct(false)
       
       toast({
         title: "Success",
@@ -361,6 +364,8 @@ export default function ProductsPage() {
         description: "Failed to update product",
         variant: "destructive",
       })
+    } finally {
+      setIsEditingProduct(false)
     }
   }
 
@@ -941,7 +946,20 @@ export default function ProductsPage() {
               <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button type="submit">Update Product</Button>
+              <Button 
+                type="submit" 
+                disabled={isEditingProduct}
+                className="rounded-full bg-[#004BFE] hover:bg-[#004BFE]/90"
+              >
+                {isEditingProduct ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Updating...
+                  </>
+                ) : (
+                  "Update Product"
+                )}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
