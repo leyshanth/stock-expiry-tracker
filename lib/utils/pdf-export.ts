@@ -71,7 +71,8 @@ export function exportToPdf(items: (ExpiryItem & { product?: Product })[], filen
   });
   
   // Add footer
-  const pageCount = doc.internal.getNumberOfPages();
+  // Get the number of pages - using the length of the pages array
+  const pageCount = (doc as any).internal.pages.length - 1;
   doc.setFontSize(8);
   doc.setTextColor(150, 150, 150);
   
