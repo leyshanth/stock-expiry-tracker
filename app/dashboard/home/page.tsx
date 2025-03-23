@@ -5,6 +5,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { useAuth } from "@/lib/hooks/use-auth"
 import { databaseService, ExpiryItem, Product } from "@/lib/appwrite/database-service"
+import { useImagePopup } from "@/components/ui/image-popup-context"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -24,6 +25,7 @@ type ExpiryFilter = 'all' | 'today' | 'tomorrow' | 'week' | 'expired' | 'dateRan
 export default function HomePage() {
   const { user } = useAuth()
   const { toast } = useToast()
+  const { openImage } = useImagePopup()
   const [greeting, setGreeting] = useState("Good day")
   const [loading, setLoading] = useState(true)
   const [expiryItems, setExpiryItems] = useState<ExpiryItemWithProduct[]>([])
@@ -249,7 +251,12 @@ export default function HomePage() {
               const { status, color, textColor } = getExpiryStatus(item.expiry_date)
               return (
                 <div key={item.$id} className="bg-[#E8F4F8] rounded-xl overflow-hidden flex mb-4">
-                  <div className="relative w-1/3 h-auto overflow-hidden">
+                  <div className="relative w-1/3 h-auto overflow-hidden cursor-pointer" 
+                    onClick={() => {
+                      if (item.product?.image_id) {
+                        openImage(databaseService.getFilePreview(item.product.image_id), item.product.name);
+                      }
+                    }}>
                     {item.product?.image_id ? (
                       <div className="relative h-full w-full">
                         <img

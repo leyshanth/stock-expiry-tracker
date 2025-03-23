@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/hooks/use-auth"
 import { databaseService, Product } from "@/lib/appwrite/database-service"
+import { useImagePopup } from "@/components/ui/image-popup-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -183,6 +184,7 @@ export default function ExpiryPage() {
   const { user } = useAuth()
   const router = useRouter()
   const { toast } = useToast()
+  const { openImage } = useImagePopup()
   
   // Scanner state
   const [isScannerActive, setIsScannerActive] = useState(false)
@@ -421,7 +423,14 @@ export default function ExpiryPage() {
               <div className="space-y-6">
                 <div className="flex items-center space-x-4">
                   {product.image_id ? (
-                    <div className="h-16 w-16 overflow-hidden rounded-lg">
+                    <div 
+                      className="h-16 w-16 overflow-hidden rounded-lg cursor-pointer"
+                      onClick={() => {
+                        if (product.image_id) {
+                          openImage(databaseService.getFilePreview(product.image_id), product.name);
+                        }
+                      }}
+                    >
                       <img
                         src={databaseService.getFilePreview(product.image_id)}
                         alt={product.name}

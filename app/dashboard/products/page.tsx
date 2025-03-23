@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from "@/components/ui/label"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { BackToTop } from "@/components/ui/back-to-top"
+import { useImagePopup } from "@/components/ui/image-popup-context"
 
 // Import Quagga dynamically since it's a client-side only library
 import dynamic from "next/dynamic"
@@ -45,6 +46,7 @@ export default function ProductsPage() {
   const [scannerError, setScannerError] = useState<string | null>(null)
   const [isSearchingBarcode, setIsSearchingBarcode] = useState(false)
   const { toast } = useToast()
+  const { openImage } = useImagePopup()
 
   // Form state
   const [formData, setFormData] = useState({
@@ -607,10 +609,15 @@ export default function ProductsPage() {
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 px-4">
+        <div className="space-y-4 px-4">
           {filteredProducts.map((product) => (
-            <div key={product.$id} className="product-card bg-[#E8F4F8]">
-              <div className="product-image">
+            <div key={product.$id} className="bg-[#E8F4F8] rounded-xl overflow-hidden flex mb-4">
+              <div className="relative w-1/3 h-auto overflow-hidden cursor-pointer" 
+                onClick={() => {
+                  if (product.image_id) {
+                    openImage(databaseService.getFilePreview(product.image_id), product.name);
+                  }
+                }}>
                 {product.image_id ? (
                   <div className="relative h-full w-full">
                     <img
@@ -630,7 +637,7 @@ export default function ProductsPage() {
                     />
                   </div>
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-muted">
+                  <div className="flex h-full w-full items-center justify-center bg-gray-200">
                     <img
                       src={'/placeholder-image.svg'}
                       alt="No image available"
@@ -640,40 +647,31 @@ export default function ProductsPage() {
                 )}
               </div>
               
-              <div className="p-4">
-                <h3 className="text-lg font-semibold mb-3 line-clamp-1">{product.name}</h3>
+              <div className="p-4 w-2/3">
+                <h3 className="text-lg font-semibold">{product.name}</h3>
                 
-                <div className="space-y-2 text-sm mb-4">
-                  <p className="flex justify-between">
-                    <span className="text-muted-foreground">Price:</span> 
-                    <span className="font-medium">{formatCurrency(product.price)}</span>
-                  </p>
-                  <p className="flex justify-between">
-                    <span className="text-muted-foreground">Barcode:</span> 
-                    <span className="font-medium">{product.barcode}</span>
-                  </p>
+                <div className="mt-1">
+                  <p className="text-gray-500">Price: {formatCurrency(product.price)}</p>
+                  <p className="text-gray-500">Barcode: {product.barcode}</p>
                   {product.category && (
-                    <p className="flex justify-between">
-                      <span className="text-muted-foreground">Category:</span> 
-                      <span className="font-medium">{product.category}</span>
-                    </p>
+                    <p className="text-gray-500">Category: {product.category}</p>
                   )}
                 </div>
                 
-                <div className="flex gap-2">
+                <div className="mt-2 flex gap-2">
                   <button
                     onClick={() => handleEditClick(product)}
-                    className="flex-1 py-2 rounded-full bg-muted hover:bg-accent text-foreground font-medium flex items-center justify-center transition-colors"
+                    className="py-1 px-3 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs font-medium flex items-center justify-center transition-colors"
                   >
-                    <Edit className="mr-2 h-4 w-4" />
+                    <Edit className="mr-1 h-3 w-3" />
                     Edit
                   </button>
                   
                   <button
                     onClick={() => handleDeleteProduct(product.$id!)}
-                    className="flex-1 py-2 rounded-full bg-red-500 hover:bg-red-600 text-white font-medium flex items-center justify-center transition-colors"
+                    className="py-1 px-3 rounded-full bg-red-500 hover:bg-red-600 text-white text-xs font-medium flex items-center justify-center transition-colors"
                   >
-                    <Trash2 className="mr-2 h-4 w-4" />
+                    <Trash2 className="mr-1 h-3 w-3" />
                     Delete
                   </button>
                 </div>
