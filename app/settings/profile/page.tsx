@@ -65,7 +65,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="container max-w-2xl py-10">
+    <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>Store Profile</CardTitle>

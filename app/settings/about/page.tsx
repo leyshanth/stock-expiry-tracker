@@ -7,7 +7,7 @@ import { Github, Mail, Twitter } from "lucide-react"
 
 export default function AboutPage() {
   return (
-    <div className="container mx-auto max-w-3xl py-8">
+    <div className="space-y-6">
       <BackToTop />
       
       <div className="mb-8 bg-gradient-to-r from-primary/10 to-secondary/10 p-6 rounded-2xl">
