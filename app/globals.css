@@ -9,7 +9,7 @@
   }
 
   .mobile-nav-item {
-    @apply flex flex-col items-center justify-center rounded-full p-2 text-xs text-gray-500 transition-colors hover:text-[#004BFE];
+    @apply flex flex-col items-center justify-center rounded-full p-3 text-sm text-gray-500 transition-colors hover:text-[#004BFE] flex-1 mx-1;
   }
 
   .mobile-nav-item.active {
@@ -17,7 +17,7 @@
   }
   
   .mobile-nav-icon {
-    @apply h-5 w-5 mb-1;
+    @apply h-6 w-6 mb-1;
   }
 
   .card-grid {

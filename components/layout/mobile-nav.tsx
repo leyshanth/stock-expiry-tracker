@@ -32,12 +32,6 @@ export function MobileNav() {
       label: "Expiry",
     },
     {
-      href: "/dashboard/deleted",
-      icon: Trash2,
-      label: "Deleted",
-    },
-
-    {
       href: "/settings/profile",
       icon: Settings,
       label: "Settings",
