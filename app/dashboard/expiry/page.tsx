@@ -38,6 +38,9 @@ export default function ExpiryPage() {
   const { toast } = useToast()
   const { openImage } = useImagePopup()
   
+  // Check for query parameters
+  const [searchParams, setSearchParams] = useState<URLSearchParams | null>(null)
+  
   // Scanner state
   const [isScannerActive, setIsScannerActive] = useState(false)
   const [scannedBarcode, setScannedBarcode] = useState("")
@@ -283,10 +286,24 @@ export default function ExpiryPage() {
     }
   }
 
-  // Focus barcode input on initial load
+  // Parse search params on initial load
   useEffect(() => {
-    if (barcodeInputRef.current) {
-      barcodeInputRef.current.focus()
+    // Get search parameters from URL
+    if (typeof window !== 'undefined') {
+      const urlSearchParams = new URLSearchParams(window.location.search)
+      setSearchParams(urlSearchParams)
+      
+      // Auto-activate scanner if scan=true parameter is present
+      if (urlSearchParams.get('scan') === 'true') {
+        setIsScannerActive(true)
+        
+        // Remove the query parameter from URL without refreshing the page
+        const newUrl = window.location.pathname
+        window.history.replaceState({}, '', newUrl)
+      } else if (barcodeInputRef.current) {
+        // Otherwise focus on barcode input
+        barcodeInputRef.current.focus()
+      }
     }
   }, [])
   

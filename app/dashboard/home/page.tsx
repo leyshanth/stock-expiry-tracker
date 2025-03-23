@@ -268,7 +268,7 @@ export default function HomePage() {
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold">Upcoming Expiry Items</h2>
           <Button asChild size="sm" className="rounded-full bg-[#004BFE] hover:bg-[#004BFE]/90">
-            <Link href="/dashboard/expiry">
+            <Link href="/dashboard/expiry?scan=true">
               <span className="mr-1">+</span> Add Expiry Item
             </Link>
           </Button>
@@ -280,7 +280,7 @@ export default function HomePage() {
             <h3 className="text-lg font-medium">No expiry items found</h3>
             <p className="text-gray-500 mt-2">Start tracking product expiry dates by adding items.</p>
             <Button asChild className="mt-6 rounded-full bg-[#004BFE] hover:bg-[#004BFE]/90">
-              <Link href="/dashboard/expiry">Add Expiry Item</Link>
+              <Link href="/dashboard/expiry?scan=true">Add Expiry Item</Link>
             </Button>
           </div>
         ) : (
