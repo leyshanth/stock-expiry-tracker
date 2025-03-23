@@ -54,6 +54,7 @@ export default function BarcodeScanner({
       try {
         cameraStream.getTracks().forEach(track => {
           track.stop();
+          track.enabled = false;
           console.log("Camera track stopped:", track.kind);
         });
         setCameraStream(null);
@@ -68,12 +69,27 @@ export default function BarcodeScanner({
         const videoStream = videoRef.current.srcObject as MediaStream;
         videoStream.getTracks().forEach(track => {
           track.stop();
+          track.enabled = false;
           console.log("Video track stopped from video element");
         });
         videoRef.current.srcObject = null;
       } catch (e) {
         console.error("Error clearing video element source:", e);
       }
+    }
+    
+    // Additional safety: try to stop all video tracks on the page
+    try {
+      navigator.mediaDevices.getUserMedia({ audio: false, video: true })
+        .then(stream => {
+          stream.getTracks().forEach(track => {
+            track.stop();
+            console.log("Additional video track stopped");
+          });
+        })
+        .catch(err => console.log("No additional media streams to clean up"));
+    } catch (e) {
+      console.log("Error in additional cleanup", e);
     }
   };
 

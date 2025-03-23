@@ -697,9 +697,9 @@ export default function ProductsPage() {
                 <Label htmlFor="add-barcode">Barcode *</Label>
                 <Button 
                   type="button" 
-                  variant="ghost" 
+                  variant="default" 
                   size="sm" 
-                  className="h-8 px-2 text-xs"
+                  className="h-8 px-2 text-xs bg-[#004BFE] hover:bg-[#004BFE]/90 text-white"
                   onClick={() => {
                     setScannerMode('add')
                     setScannerError(null)
