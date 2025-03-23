@@ -49,7 +49,7 @@ export default function ForgotPasswordPage() {
   if (isSubmitted) {
     return (
       <AuthLayout title="Check Your Email" subtitle="We've sent you a password reset link">
-        <div className="text-center pt-6">
+        <div className="text-center pt-10">
           <p className="text-gray-700 mb-6">
             We've sent a password reset link to <span className="font-semibold">{email}</span>.
             Please check your email and follow the instructions to reset your password.
@@ -67,7 +67,7 @@ export default function ForgotPasswordPage() {
 
   return (
     <AuthLayout title="Forgot Password" subtitle="Enter your email to reset your password">
-      <form onSubmit={handleSubmit} className="space-y-4 pt-6">
+      <form onSubmit={handleSubmit} className="space-y-4 pt-10">
         <div>
           <input
             type="email"

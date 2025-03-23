@@ -54,7 +54,7 @@ export default function LoginPage() {
 
   return (
     <AuthLayout title="Login" subtitle="Good to see you back!">
-      <form onSubmit={handleSubmit} className="space-y-4 pt-6">
+      <form onSubmit={handleSubmit} className="space-y-4 pt-10">
         <div>
           <input
             type="email"

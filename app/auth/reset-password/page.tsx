@@ -105,7 +105,7 @@ function ResetPasswordContent() {
 
   return (
     <AuthLayout title="Reset Password" subtitle="Enter your new password below">
-      <form onSubmit={handleSubmit} className="space-y-4 pt-6">
+      <form onSubmit={handleSubmit} className="space-y-4 pt-10">
         <div className="relative">
           <input
             type={showPassword ? "text" : "password"}

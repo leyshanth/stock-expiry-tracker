@@ -30,8 +30,8 @@ export default function AuthLayout({ children, title, subtitle }: AuthLayoutProp
       {/* Light blue decorative shape */}
       <div className="absolute left-0 bottom-0 w-64 h-64 bg-blue-100 rounded-tr-full opacity-50" />
 
-      {/* Login content - moved up significantly */}
-      <div className="flex-1 px-8 z-10 -mt-24">
+      {/* Login content - positioned lower on screen */}
+      <div className="flex-1 px-8 z-10 mt-12">
         {children}
       </div>
 

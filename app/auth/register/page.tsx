@@ -75,7 +75,7 @@ export default function RegisterPage() {
 
   return (
     <AuthLayout title="Register" subtitle="Create a new account">
-      <form onSubmit={handleSubmit} className="space-y-4 pt-6">
+      <form onSubmit={handleSubmit} className="space-y-4 pt-10">
         <div>
           <input
             type="text"
