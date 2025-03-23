@@ -135,7 +135,7 @@ export default function SettingsPage() {
             <div>
               <Label className="font-medium">Account Created</Label>
               <p className="text-sm">
-                {user?.registration ? new Date(user.registration * 1000).toLocaleDateString() : "Not available"}
+                {user?.registration ? new Date(Number(user.registration) * 1000).toLocaleDateString() : "Not available"}
               </p>
             </div>
           </CardContent>
