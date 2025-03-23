@@ -5,11 +5,11 @@
 
 @layer components {
   .mobile-nav {
-    @apply fixed bottom-0 left-0 z-50 flex h-16 w-full items-center justify-around border-t border-border bg-white shadow-lg px-2;
+    @apply fixed bottom-0 left-0 z-50 flex h-16 w-full items-center justify-around border-t border-border bg-white shadow-lg px-2 pt-1;
   }
 
   .mobile-nav-item {
-    @apply flex flex-col items-center justify-center rounded-full p-3 text-sm text-gray-500 transition-colors hover:text-[#004BFE] flex-1 mx-1;
+    @apply flex flex-col items-center justify-start rounded-full p-3 pt-0 text-sm text-gray-500 transition-colors hover:text-[#004BFE] flex-1 mx-1;
   }
 
   .mobile-nav-item.active {
@@ -17,7 +17,7 @@
   }
   
   .mobile-nav-icon {
-    @apply h-6 w-6 mb-1;
+    @apply h-6 w-6 mb-0.5;
   }
 
   .card-grid {
