@@ -54,67 +54,56 @@ export default function LoginPage() {
 
   return (
     <AuthLayout title="Login" subtitle="Good to see you back!">
-      <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Email input */}
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <Input
-            id="email"
+          <input
             type="email"
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="bg-gray-50 border-none rounded-lg px-4 py-3 w-full text-gray-700 placeholder-gray-400"
+            className="w-full p-4 bg-gray-100 rounded-full text-gray-700 focus:outline-none"
           />
         </div>
-        
-        {/* Password input */}
+
         <div className="relative">
-          <Input
-            id="password"
+          <input
             type={showPassword ? "text" : "password"}
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="bg-gray-50 border-none rounded-lg px-4 py-3 w-full text-gray-700 placeholder-gray-400"
+            className="w-full p-4 bg-gray-100 rounded-full text-gray-700 focus:outline-none"
           />
-          <button 
+          <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500"
           >
-            {showPassword ? (
-              <EyeOff className="h-5 w-5" />
-            ) : (
-              <Eye className="h-5 w-5" />
-            )}
+            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
           </button>
         </div>
-        
-        {/* Login button */}
-        <Button 
+
+        <button 
           type="submit" 
-          className="w-full bg-[#004BFE] hover:bg-blue-600 text-white py-3 rounded-lg transition-colors mt-5" 
+          className="w-full p-4 bg-[#004BFE] text-white rounded-full font-medium text-xl mt-8"
           disabled={isLoading}
         >
           {isLoading ? "Logging in..." : "Login"}
-        </Button>
-        
-        {/* Register and Forgot password links */}
-        <div className="text-center text-sm mt-4">
-          <div className="flex justify-center items-center space-x-1">
-            <span className="text-gray-600">Don't have an account?</span>
-            <Link href="/auth/register" className="text-[#004BFE] hover:underline font-medium">
+        </button>
+
+        <div className="mt-6 text-center">
+          <p className="text-gray-700">
+            Don't have an account?{" "}
+            <Link href="/auth/register" className="text-black underline">
               Register
             </Link>
-          </div>
-          <Link
-            href="/auth/reset-password"
-            className="text-[#004BFE] hover:underline block mt-2"
-          >
-            Forgot password?
-          </Link>
+          </p>
+          <p className="mt-2">
+            <Link href="/auth/forgot-password" className="text-gray-700">
+              Forgot password?
+            </Link>
+          </p>
         </div>
       </form>
     </AuthLayout>

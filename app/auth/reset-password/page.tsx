@@ -92,12 +92,12 @@ function ResetPasswordContent() {
     return (
       <AuthLayout title="Invalid Reset Link" subtitle="The password reset link is invalid or has expired.">
         <div className="mt-6">
-          <Button 
-            asChild 
-            className="w-full bg-[#004BFE] hover:bg-blue-600 text-white py-3 rounded-lg transition-colors"
+          <button 
+            className="w-full p-4 bg-[#004BFE] text-white rounded-full font-medium text-xl"
+            onClick={() => router.push('/auth/login')}
           >
-            <Link href="/auth/login">Back to Login</Link>
-          </Button>
+            Back to Login
+          </button>
         </div>
       </AuthLayout>
     );
@@ -106,75 +106,63 @@ function ResetPasswordContent() {
   return (
     <AuthLayout title="Reset Password" subtitle="Enter your new password below">
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* New Password input */}
         <div className="relative">
-          <Input
-            id="password"
+          <input
             type={showPassword ? "text" : "password"}
             placeholder="New Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
             disabled={isLoading}
-            className="bg-gray-50 border-none rounded-lg px-4 py-3 w-full text-gray-700 placeholder-gray-400"
+            className="w-full p-4 bg-gray-100 rounded-full text-gray-700 focus:outline-none"
           />
           <button 
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500"
             disabled={isLoading}
           >
-            {showPassword ? (
-              <EyeOff className="h-5 w-5" />
-            ) : (
-              <Eye className="h-5 w-5" />
-            )}
+            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
           </button>
         </div>
-        <p className="text-xs text-gray-500 -mt-1 ml-1">
+        <p className="text-xs text-gray-500 -mt-1 ml-4">
           Must be at least 8 characters long
         </p>
         
-        {/* Confirm Password input */}
         <div className="relative">
-          <Input
-            id="confirmPassword"
+          <input
             type={showConfirmPassword ? "text" : "password"}
             placeholder="Confirm Password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
             disabled={isLoading}
-            className="bg-gray-50 border-none rounded-lg px-4 py-3 w-full text-gray-700 placeholder-gray-400"
+            className="w-full p-4 bg-gray-100 rounded-full text-gray-700 focus:outline-none"
           />
           <button 
             type="button"
             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500"
             disabled={isLoading}
           >
-            {showConfirmPassword ? (
-              <EyeOff className="h-5 w-5" />
-            ) : (
-              <Eye className="h-5 w-5" />
-            )}
+            {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
           </button>
         </div>
         
-        {/* Reset Password button */}
-        <Button 
+        <button 
           type="submit" 
-          className="w-full bg-[#004BFE] hover:bg-blue-600 text-white py-3 rounded-lg transition-colors mt-5" 
+          className="w-full p-4 bg-[#004BFE] text-white rounded-full font-medium text-xl mt-8"
           disabled={isLoading}
         >
           {isLoading ? "Resetting Password..." : "Reset Password"}
-        </Button>
+        </button>
         
-        {/* Login link */}
-        <div className="text-center text-sm mt-4">
-          <Link href="/auth/login" className="text-[#004BFE] hover:underline font-medium">
-            Back to Login
-          </Link>
+        <div className="mt-6 text-center">
+          <p className="text-gray-700">
+            <Link href="/auth/login" className="text-black underline">
+              Back to Login
+            </Link>
+          </p>
         </div>
       </form>
     </AuthLayout>
@@ -193,18 +181,18 @@ function ResetPasswordFallback() {
   return (
     <AuthLayout title="Reset Password" subtitle="Loading reset password form...">
       <div className="flex flex-col items-center justify-center py-6 space-y-5">
-        <div className="w-12 h-12 flex items-center justify-center">
-          <div className="w-8 h-8 border-2 border-[#004BFE] border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-16 h-16 flex items-center justify-center">
+          <div className="w-10 h-10 border-3 border-[#004BFE] border-t-transparent rounded-full animate-spin"></div>
         </div>
-        <p className="text-center text-sm text-gray-500">
+        <p className="text-center text-gray-700">
           Please wait while we load the reset password form...
         </p>
-        <Button 
+        <button 
           disabled 
-          className="w-full bg-[#004BFE] opacity-70 text-white py-3 rounded-lg mt-4"
+          className="w-full p-4 bg-[#004BFE] opacity-70 text-white rounded-full font-medium text-xl mt-4"
         >
           Please wait...
-        </Button>
+        </button>
       </div>
     </AuthLayout>
   );
