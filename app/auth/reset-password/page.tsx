@@ -105,7 +105,7 @@ function ResetPasswordContent() {
 
   return (
     <AuthLayout title="Reset Password" subtitle="Enter your new password below">
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4 pt-6">
         <div className="relative">
           <input
             type={showPassword ? "text" : "password"}
@@ -151,13 +151,13 @@ function ResetPasswordContent() {
         
         <button 
           type="submit" 
-          className="w-full p-4 bg-[#004BFE] text-white rounded-full font-medium text-xl mt-8"
+          className="w-full p-4 bg-[#004BFE] text-white rounded-full font-medium text-xl mt-6"
           disabled={isLoading}
         >
           {isLoading ? "Resetting Password..." : "Reset Password"}
         </button>
         
-        <div className="mt-6 text-center">
+        <div className="mt-4 text-center">
           <p className="text-gray-700">
             <Link href="/auth/login" className="text-black underline">
               Back to Login

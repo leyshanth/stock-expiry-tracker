@@ -54,7 +54,7 @@ export default function LoginPage() {
 
   return (
     <AuthLayout title="Login" subtitle="Good to see you back!">
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4 pt-6">
         <div>
           <input
             type="email"
@@ -86,20 +86,20 @@ export default function LoginPage() {
 
         <button 
           type="submit" 
-          className="w-full p-4 bg-[#004BFE] text-white rounded-full font-medium text-xl mt-8"
+          className="w-full p-4 bg-[#004BFE] text-white rounded-full font-medium text-xl mt-6"
           disabled={isLoading}
         >
           {isLoading ? "Logging in..." : "Login"}
         </button>
 
-        <div className="mt-6 text-center">
+        <div className="mt-4 text-center">
           <p className="text-gray-700">
             Don't have an account?{" "}
             <Link href="/auth/register" className="text-black underline">
               Register
             </Link>
           </p>
-          <p className="mt-2">
+          <p className="mt-1">
             <Link href="/auth/forgot-password" className="text-gray-700">
               Forgot password?
             </Link>

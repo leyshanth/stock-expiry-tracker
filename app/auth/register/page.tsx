@@ -75,7 +75,7 @@ export default function RegisterPage() {
 
   return (
     <AuthLayout title="Register" subtitle="Create a new account">
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4 pt-6">
         <div>
           <input
             type="text"
@@ -139,13 +139,13 @@ export default function RegisterPage() {
 
         <button 
           type="submit" 
-          className="w-full p-4 bg-[#004BFE] text-white rounded-full font-medium text-xl mt-8"
+          className="w-full p-4 bg-[#004BFE] text-white rounded-full font-medium text-xl mt-6"
           disabled={isLoading}
         >
           {isLoading ? "Creating account..." : "Register"}
         </button>
 
-        <div className="mt-6 text-center">
+        <div className="mt-4 text-center">
           <p className="text-gray-700">
             Already have an account?{" "}
             <Link href="/auth/login" className="text-black underline">
