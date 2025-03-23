@@ -162,22 +162,31 @@ export default function DeletedItemsPage() {
       return
     }
 
-    try {
-      // Export to PDF
-      exportToPdf(deletedItems, "deleted-items")
-      
-      toast({
-        title: "Success",
-        description: "PDF file downloaded successfully",
-      })
-    } catch (error) {
-      console.error("Failed to export PDF:", error)
-      toast({
-        title: "Error",
-        description: "Failed to export PDF file",
-        variant: "destructive",
-      })
-    }
+    // Show loading toast
+    toast({
+      title: "Generating PDF",
+      description: "Please wait while we prepare your PDF...",
+    })
+
+    // Use setTimeout to allow the UI to update before heavy PDF operation
+    setTimeout(() => {
+      try {
+        // Export to PDF
+        exportToPdf(deletedItems, "deleted-items")
+        
+        toast({
+          title: "Success",
+          description: "PDF file downloaded successfully",
+        })
+      } catch (error) {
+        console.error("Failed to export PDF:", error)
+        toast({
+          title: "Error",
+          description: "Failed to export PDF file. Please try again.",
+          variant: "destructive",
+        })
+      }
+    }, 100) // Small delay to ensure UI responsiveness
   }
 
   if (loading) {
