@@ -410,15 +410,10 @@ export default function ExpiryPage() {
           </div>
         ) : isScannerActive ? (
           <div className="space-y-4">
-            <QuaggaScanner onDetected={handleBarcodeDetected} />
-            <Button 
-              variant="outline" 
-              onClick={() => setIsScannerActive(false)}
-              className="w-full rounded-lg"
-            >
-              <X className="mr-2 h-4 w-4" />
-              Cancel Scanning
-            </Button>
+            <QuaggaScanner 
+              onDetected={handleBarcodeDetected} 
+              onClose={() => setIsScannerActive(false)} 
+            />
           </div>
         ) : product ? (
           <div className="bg-card rounded-xl border border-border shadow-sm p-8">

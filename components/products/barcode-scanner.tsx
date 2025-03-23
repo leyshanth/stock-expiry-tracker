@@ -367,12 +367,7 @@ export default function BarcodeScanner({
     }
   };
   
-  // For testing - simulate a barcode scan
-  const simulateScan = () => {
-    const testBarcodes = ["5901234123457", "0123456789012", "1234567890128"];
-    const randomBarcode = testBarcodes[Math.floor(Math.random() * testBarcodes.length)];
-    onDetected(randomBarcode);
-  };
+  // Function removed - no longer needed for production
 
   return (
     <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex flex-col items-center justify-center p-4 overflow-hidden">
@@ -469,9 +464,6 @@ export default function BarcodeScanner({
           </Button>
           <Button onClick={handleManualEntry} className="ml-auto">
             Enter Manually
-          </Button>
-          <Button onClick={simulateScan} variant="secondary" className="ml-2">
-            Test Scan
           </Button>
         </div>
       </div>
