@@ -9,6 +9,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { formatDate } from "@/lib/utils/date-utils"
 import { exportToCsv } from "@/lib/utils/csv-export"
 import { Download, Trash2, RotateCcw, AlertTriangle } from "lucide-react"
+import { BackToTop } from "@/components/ui/back-to-top"
 
 export default function DeletedItemsPage() {
   const { user } = useAuth()
@@ -162,76 +163,85 @@ export default function DeletedItemsPage() {
   }
 
   return (
-    <div className="container mx-auto max-w-4xl">
-      <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-        <h1 className="text-2xl font-bold">Deleted Items</h1>
-        
-        <Button 
-          onClick={handleExportCsv}
-          disabled={deletedItems.length === 0}
-        >
-          <Download className="mr-2 h-4 w-4" />
-          Export to CSV
-        </Button>
+    <div className="pb-8">
+      <BackToTop />
+      {/* Blue Header with White Text */}
+      <div className="bg-[#004BFE] text-white p-4 pt-6 pb-16 rounded-b-3xl">
+        <h1 className="text-xl font-bold">Deleted Items</h1>
+        <p className="text-white/80 mt-1">View and manage your deleted expiry items</p>
       </div>
       
-      {deletedItems.length === 0 ? (
-        <div className="flex h-[60vh] flex-col items-center justify-center">
-          <AlertTriangle className="h-16 w-16 text-muted-foreground" />
-          <h2 className="mt-4 text-xl font-semibold">No deleted items found</h2>
-          <p className="mt-2 text-center text-muted-foreground">
-            Items that you delete will appear here
-          </p>
+      <div className="container mx-auto max-w-4xl -mt-10">
+        <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center bg-white rounded-xl shadow-md p-4">
+          <div></div>
+          <Button 
+            onClick={handleExportCsv}
+            disabled={deletedItems.length === 0}
+            className="bg-[#004BFE] hover:bg-[#004BFE]/90 rounded-full"
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Export to CSV
+          </Button>
         </div>
-      ) : (
-        <div className="space-y-4">
-          {deletedItems.map((item) => (
-            <Card key={item.$id}>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">
-                  {item.product?.name || "Unknown Product"}
-                </CardTitle>
-              </CardHeader>
-              
-              <CardContent>
-                <div className="flex flex-col justify-between gap-4 sm:flex-row">
-                  <div className="space-y-1 text-sm">
-                    <p><span className="font-medium">Barcode:</span> {item.barcode}</p>
-                    <p><span className="font-medium">Quantity:</span> {item.quantity}</p>
-                    <p><span className="font-medium">Expiry Date:</span> {formatDate(item.expiry_date)}</p>
-                    {item.product?.category && (
-                      <p><span className="font-medium">Category:</span> {item.product.category}</p>
-                    )}
-                    <p className="text-muted-foreground">
-                      <span className="font-medium">Deleted:</span> {formatDate(item.deleted_at || item.created_at || new Date())}
-                    </p>
-                  </div>
-                  
-                  <div className="flex gap-2 self-end sm:self-center">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleRestore(item.$id!)}
-                    >
-                      <RotateCcw className="mr-2 h-4 w-4" />
-                      Restore
-                    </Button>
+      
+        {deletedItems.length === 0 ? (
+          <div className="flex h-[60vh] flex-col items-center justify-center">
+            <AlertTriangle className="h-16 w-16 text-muted-foreground" />
+            <h2 className="mt-4 text-xl font-semibold">No deleted items found</h2>
+            <p className="mt-2 text-center text-muted-foreground">
+              Items that you delete will appear here
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {deletedItems.map((item) => (
+              <Card key={item.$id}>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg">
+                    {item.product?.name || "Unknown Product"}
+                  </CardTitle>
+                </CardHeader>
+                
+                <CardContent>
+                  <div className="flex flex-col justify-between gap-4 sm:flex-row">
+                    <div className="space-y-1 text-sm">
+                      <p><span className="font-medium">Barcode:</span> {item.barcode}</p>
+                      <p><span className="font-medium">Quantity:</span> {item.quantity}</p>
+                      <p><span className="font-medium">Expiry Date:</span> {formatDate(item.expiry_date)}</p>
+                      {item.product?.category && (
+                        <p><span className="font-medium">Category:</span> {item.product.category}</p>
+                      )}
+                      <p className="text-muted-foreground">
+                        <span className="font-medium">Deleted:</span> {formatDate(item.deleted_at || item.created_at || new Date())}
+                      </p>
+                    </div>
                     
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handlePermanentDelete(item.$id!)}
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Delete
-                    </Button>
+                    <div className="flex gap-2 self-end sm:self-center">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleRestore(item.$id!)}
+                      >
+                        <RotateCcw className="mr-2 h-4 w-4" />
+                        Restore
+                      </Button>
+                      
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handlePermanentDelete(item.$id!)}
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

@@ -522,9 +522,9 @@ export default function ProductsPage() {
   return (
     <div className="pb-8">
       <BackToTop />
-      {/* New Header with Blue Background */}
+      {/* Blue Header with Product Database Title */}
       <div className="bg-[#004BFE] text-white p-4 pt-6 pb-16 rounded-b-3xl">
-        <h1 className="text-xl font-bold">Good evening, {user?.name || 'User'}</h1>
+        <h1 className="text-xl font-bold">Product Database</h1>
         <p className="text-white/80 mt-1">Manage your product inventory</p>
       </div>
       

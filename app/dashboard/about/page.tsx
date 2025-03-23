@@ -7,13 +7,16 @@ import { Github, Mail, Twitter } from "lucide-react"
 
 export default function AboutPage() {
   return (
-    <div className="container mx-auto max-w-3xl py-8">
+    <div className="pb-8">
       <BackToTop />
       
-      <div className="mb-8 bg-gradient-to-r from-primary/10 to-secondary/10 p-6 rounded-2xl">
-        <h1 className="text-2xl font-bold">About</h1>
-        <p className="text-muted-foreground mt-2">Learn more about Stock Expiry Tracker</p>
+      {/* Blue Header with White Text */}
+      <div className="bg-[#004BFE] text-white p-4 pt-6 pb-16 rounded-b-3xl">
+        <h1 className="text-xl font-bold">About</h1>
+        <p className="text-white/80 mt-1">Learn more about Stock Expiry Tracker</p>
       </div>
+      
+      <div className="container mx-auto max-w-3xl -mt-10">
       
       <Card className="overflow-hidden">
         <CardContent className="p-0">
@@ -75,6 +78,7 @@ export default function AboutPage() {
       
       <div className="mt-8 text-center text-sm text-muted-foreground">
         <p>© {new Date().getFullYear()} Stock Expiry Tracker. All rights reserved.</p>
+      </div>
       </div>
     </div>
   )
