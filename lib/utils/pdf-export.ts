@@ -1,5 +1,6 @@
 import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+// Import jspdf-autotable with the correct approach for Next.js
+import autoTable from 'jspdf-autotable';
 import { ExpiryItem, Product } from '../appwrite/database-service';
 import { formatDate } from './date-utils';
 
@@ -52,8 +53,8 @@ export function exportToPdf(items: (ExpiryItem & { product?: Product })[], filen
       'Deletion Date'
     ];
     
-    // Add table to PDF
-    doc.autoTable({
+    // Add table to PDF using the imported autoTable function
+    autoTable(doc, {
       head: [headers],
       body: tableData,
       startY: 35,
@@ -65,7 +66,7 @@ export function exportToPdf(items: (ExpiryItem & { product?: Product })[], filen
         lineWidth: 0.1,
       },
       headStyles: {
-        fillColor: [0, 75, 254], // #004BFE
+        fillColor: [0, 75, 254], // #004BFE - matching the app's blue theme
         textColor: [255, 255, 255],
         fontStyle: 'bold',
       },
