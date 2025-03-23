@@ -10,15 +10,9 @@ interface AuthLayoutProps {
 export default function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
   return (
     <div className="flex flex-col min-h-screen bg-white">
-      {/* Top curved shape */}
+      {/* Top curved shape - removed text */}
       <div className="relative h-72 bg-[#004BFE] rounded-bl-[40%]">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <h1 className="text-4xl font-bold text-white text-center">
-            Stock & Expiry
-            <br />
-            Tracker
-          </h1>
-        </div>
+        {/* Header text removed */}
       </div>
 
       {/* Bottom right curved shape */}
@@ -27,8 +21,8 @@ export default function AuthLayout({ children, title, subtitle }: AuthLayoutProp
       {/* Light blue decorative shape */}
       <div className="absolute left-0 bottom-0 w-64 h-64 bg-blue-100 rounded-tr-full opacity-50" />
 
-      {/* Login content */}
-      <div className="flex-1 px-8 pt-12 z-10">
+      {/* Login content - moved up */}
+      <div className="flex-1 px-8 pt-4 z-10 -mt-16">
         <h2 className="text-5xl font-bold mb-2">{title}</h2>
         {subtitle && <p className="text-gray-700 mb-8">{subtitle}</p>}
         
