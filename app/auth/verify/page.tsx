@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { CheckCircle, XCircle } from "lucide-react";
 import Link from "next/link";
+import AuthLayout from "@/components/auth/auth-layout";
 
 function VerifyEmailContent() {
   const router = useRouter();
@@ -38,49 +39,56 @@ function VerifyEmailContent() {
     verifyEmail();
   }, [searchParams]);
 
+  const title = 
+    status === "loading" ? "Email Verification" :
+    status === "success" ? "Email Verified!" :
+    "Verification Failed";
+    
+  const subtitle = 
+    status === "loading" ? "Verifying your email address..." :
+    status === "success" ? "Your email has been successfully verified" :
+    "Email verification failed";
+    
   return (
-    <div className="container flex items-center justify-center min-h-screen py-12">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Email Verification</CardTitle>
-          <CardDescription>
-            {status === "loading" && "Verifying your email address..."}
-            {status === "success" && "Your email has been verified!"}
-            {status === "error" && "Email verification failed"}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col items-center justify-center py-6">
-          {status === "loading" && (
-            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-muted">
-              <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-            </div>
-          )}
-          {status === "success" && (
-            <CheckCircle className="w-16 h-16 text-green-500" />
-          )}
-          {status === "error" && (
-            <XCircle className="w-16 h-16 text-red-500" />
-          )}
-          
-          <p className="mt-4 text-center text-sm text-muted-foreground">
-            {status === "loading" && "Please wait while we verify your email address..."}
-            {status === "success" && "Thank you for verifying your email address. You can now use all features of the application."}
-            {status === "error" && errorMessage}
-          </p>
-        </CardContent>
-        <CardFooter className="flex justify-center">
-          {status === "loading" ? (
-            <Button disabled>Please wait...</Button>
-          ) : (
-            <Button asChild>
-              <Link href={status === "success" ? "/dashboard/home" : "/auth/login"}>
-                {status === "success" ? "Go to Dashboard" : "Back to Login"}
-              </Link>
-            </Button>
-          )}
-        </CardFooter>
-      </Card>
-    </div>
+    <AuthLayout title={title} subtitle={subtitle}>
+      <div className="flex flex-col items-center justify-center py-8 space-y-6">
+        {status === "loading" && (
+          <div className="w-16 h-16 flex items-center justify-center">
+            <div className="w-8 h-8 border-2 border-[#004BFE] border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        )}
+        {status === "success" && (
+          <CheckCircle className="w-20 h-20 text-green-500" />
+        )}
+        {status === "error" && (
+          <XCircle className="w-20 h-20 text-red-500" />
+        )}
+        
+        <p className="text-center text-sm text-gray-600 max-w-md">
+          {status === "loading" && "Please wait while we verify your email address..."}
+          {status === "success" && "Thank you for verifying your email address. You can now use all features of the application."}
+          {status === "error" && errorMessage}
+        </p>
+        
+        {status === "loading" ? (
+          <Button 
+            disabled 
+            className="w-full bg-[#004BFE] opacity-70 text-white py-2 rounded-lg mt-4"
+          >
+            Please wait...
+          </Button>
+        ) : (
+          <Button 
+            asChild
+            className="w-full bg-[#004BFE] hover:bg-blue-700 text-white py-2 rounded-lg transition-colors mt-4"
+          >
+            <Link href={status === "success" ? "/dashboard/home" : "/auth/login"}>
+              {status === "success" ? "Go to Dashboard" : "Back to Login"}
+            </Link>
+          </Button>
+        )}
+      </div>
+    </AuthLayout>
   );
 }
 
@@ -94,24 +102,21 @@ export default function VerifyEmailPage() {
 
 function VerifyEmailFallback() {
   return (
-    <div className="container flex items-center justify-center min-h-screen py-12">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Email Verification</CardTitle>
-          <CardDescription>Verifying your email address...</CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col items-center justify-center py-6">
-          <div className="flex items-center justify-center w-12 h-12 rounded-full bg-muted">
-            <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-          </div>
-          <p className="mt-4 text-center text-sm text-muted-foreground">
-            Please wait while we verify your email address...
-          </p>
-        </CardContent>
-        <CardFooter className="flex justify-center">
-          <Button disabled>Please wait...</Button>
-        </CardFooter>
-      </Card>
-    </div>
+    <AuthLayout title="Email Verification" subtitle="Verifying your email address...">
+      <div className="flex flex-col items-center justify-center py-8 space-y-6">
+        <div className="w-16 h-16 flex items-center justify-center">
+          <div className="w-8 h-8 border-2 border-[#004BFE] border-t-transparent rounded-full animate-spin"></div>
+        </div>
+        <p className="text-center text-sm text-gray-600">
+          Please wait while we verify your email address...
+        </p>
+        <Button 
+          disabled 
+          className="w-full bg-[#004BFE] opacity-70 text-white py-2 rounded-lg"
+        >
+          Please wait...
+        </Button>
+      </div>
+    </AuthLayout>
   );
 }
