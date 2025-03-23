@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useAuth } from "@/lib/hooks/use-auth"
@@ -31,6 +31,8 @@ export default function HomePage() {
   const [expiryItems, setExpiryItems] = useState<ExpiryItemWithProduct[]>([])
   const [isDeleting, setIsDeleting] = useState(false)
   const [activeFilter, setActiveFilter] = useState<ExpiryFilter>('all')
+  const [showAllItems, setShowAllItems] = useState(false)
+  const itemsContainerRef = useRef<HTMLDivElement>(null)
   
   // Date range filter state
   const [showDateRangeDialog, setShowDateRangeDialog] = useState(false)
@@ -284,8 +286,8 @@ export default function HomePage() {
             </Button>
           </div>
         ) : (
-          <div className="space-y-4 mt-4">
-            {getFilteredExpiryItems().slice(0, 6).map((item) => {
+          <div className="space-y-4 mt-4" ref={itemsContainerRef}>
+            {getFilteredExpiryItems().slice(0, showAllItems ? undefined : 6).map((item) => {
               const { status, color, textColor, badgeColor, badgeTextColor } = getExpiryStatus(item.expiry_date)
               return (
                 <div key={item.$id} className={`${color} rounded-xl overflow-hidden flex mb-4 relative shadow-sm`}>
@@ -350,8 +352,20 @@ export default function HomePage() {
         
         {getFilteredExpiryItems().length > 6 && (
           <div className="text-center mt-6">
-            <Button asChild variant="outline" className="rounded-full px-6 border-[#004BFE] text-[#004BFE]">
-              <Link href="/dashboard/expiry">View All Expiry Items</Link>
+            <Button 
+              variant="outline" 
+              className="rounded-full px-6 border-[#004BFE] text-[#004BFE]"
+              onClick={() => {
+                setShowAllItems(!showAllItems);
+                // If showing less, scroll back to the top of the items container
+                if (showAllItems) {
+                  setTimeout(() => {
+                    itemsContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }, 100);
+                }
+              }}
+            >
+              {showAllItems ? "Show Less" : "View All Expiry Items"}
             </Button>
           </div>
         )}
