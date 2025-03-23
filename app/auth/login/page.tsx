@@ -54,78 +54,66 @@ export default function LoginPage() {
 
   return (
     <AuthLayout title="Login" subtitle="Good to see you back!">
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="space-y-4">
-          {/* Email input */}
-          <div className="space-y-2">
-            <label htmlFor="email" className="text-sm font-medium text-gray-700">
-              Email
-            </label>
-            <div className="relative">
-              <Input
-                id="email"
-                type="email"
-                placeholder="your@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 w-full focus:ring-[#004BFE] focus:border-[#004BFE]"
-              />
-            </div>
-          </div>
-          
-          {/* Password input */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label htmlFor="password" className="text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <Link
-                href="/auth/reset-password"
-                className="text-xs text-[#004BFE] hover:underline"
-              >
-                Forgot password?
-              </Link>
-            </div>
-            <div className="relative">
-              <Input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 w-full focus:ring-[#004BFE] focus:border-[#004BFE]"
-              />
-              <button 
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
-              >
-                {showPassword ? (
-                  <EyeOff className="h-5 w-5" />
-                ) : (
-                  <Eye className="h-5 w-5" />
-                )}
-              </button>
-            </div>
-          </div>
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Email input */}
+        <div>
+          <Input
+            id="email"
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="bg-gray-50 border-none rounded-lg px-4 py-3 w-full text-gray-700 placeholder-gray-400"
+          />
+        </div>
+        
+        {/* Password input */}
+        <div className="relative">
+          <Input
+            id="password"
+            type={showPassword ? "text" : "password"}
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            className="bg-gray-50 border-none rounded-lg px-4 py-3 w-full text-gray-700 placeholder-gray-400"
+          />
+          <button 
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+          >
+            {showPassword ? (
+              <EyeOff className="h-5 w-5" />
+            ) : (
+              <Eye className="h-5 w-5" />
+            )}
+          </button>
         </div>
         
         {/* Login button */}
         <Button 
           type="submit" 
-          className="w-full bg-[#004BFE] hover:bg-blue-700 text-white py-2 rounded-lg transition-colors" 
+          className="w-full bg-[#004BFE] hover:bg-blue-600 text-white py-3 rounded-lg transition-colors mt-5" 
           disabled={isLoading}
         >
           {isLoading ? "Logging in..." : "Login"}
         </Button>
         
-        {/* Register link */}
-        <div className="text-center text-sm mt-6">
-          Don&apos;t have an account?{" "}
-          <Link href="/auth/register" className="text-[#004BFE] hover:underline font-medium">
-            Register
+        {/* Register and Forgot password links */}
+        <div className="text-center text-sm mt-4">
+          <div className="flex justify-center items-center space-x-1">
+            <span className="text-gray-600">Don't have an account?</span>
+            <Link href="/auth/register" className="text-[#004BFE] hover:underline font-medium">
+              Register
+            </Link>
+          </div>
+          <Link
+            href="/auth/reset-password"
+            className="text-[#004BFE] hover:underline block mt-2"
+          >
+            Forgot password?
           </Link>
         </div>
       </form>
