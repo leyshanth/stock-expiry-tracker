@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { BackToTop } from "@/components/ui/back-to-top"
 import { useImagePopup } from "@/components/ui/image-popup-context"
+import { compressImage } from "@/lib/utils/image-compression"
 
 // Import Quagga dynamically since it's a client-side only library
 import dynamic from "next/dynamic"
@@ -174,14 +175,23 @@ export default function ProductsPage() {
           })
         } else {
           try {
-            // Log file details
-            console.log("File details:", {
+            // Log original file details
+            console.log("Original file details:", {
               name: formData.image.name,
               type: formData.image.type,
               size: formData.image.size
             })
             
-            imageId = await databaseService.uploadProductImage(formData.image, user.$id)
+            // Compress image before uploading (max 1MB)
+            const compressedImage = await compressImage(formData.image, 1024 * 1024)
+            console.log("Compressed image details:", {
+              name: compressedImage.name,
+              type: compressedImage.type,
+              size: compressedImage.size
+            })
+            
+            // Upload the compressed image
+            imageId = await databaseService.uploadProductImage(compressedImage, user.$id)
             console.log("Image uploaded successfully with ID:", imageId)
           } catch (imageError) {
             console.error("Failed to upload image:", imageError)
@@ -291,14 +301,23 @@ export default function ProductsPage() {
           }
           
           try {
-            // Log file details
-            console.log("File details:", {
+            // Log original file details
+            console.log("Original file details:", {
               name: formData.image.name,
               type: formData.image.type,
               size: formData.image.size
             })
             
-            imageId = await databaseService.uploadProductImage(formData.image, user.$id)
+            // Compress image before uploading (max 1MB)
+            const compressedImage = await compressImage(formData.image, 1024 * 1024)
+            console.log("Compressed image details:", {
+              name: compressedImage.name,
+              type: compressedImage.type,
+              size: compressedImage.size
+            })
+            
+            // Upload the compressed image
+            imageId = await databaseService.uploadProductImage(compressedImage, user.$id)
             console.log("Image uploaded successfully with ID:", imageId)
           } catch (imageError) {
             console.error("Failed to upload image:", imageError)

@@ -19,12 +19,11 @@ export class AuthService {
         // Login the user immediately after registration
         await account.createEmailSession(email, password);
         
-        // Try to send verification email, but don't fail if it doesn't work
-        try {
-          await this.sendVerificationEmail();
-        } catch (verificationError) {
-          console.log('Verification email could not be sent, but user was created successfully');
-        }
+        // Wait a moment to ensure the session is created before sending verification email
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        // Send verification email - this is critical for account security
+        await this.sendVerificationEmail();
         
         return user;
       } else {
@@ -89,19 +88,19 @@ export class AuthService {
     try {
       const redirectUrl = `${window.location.origin}/auth/verify`;
       
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`Sending verification email with redirect URL: ${redirectUrl}`);
-      }
+      console.log(`Sending verification email with redirect URL: ${redirectUrl}`);
       
-      await account.createVerification(redirectUrl);
+      // Force a delay to ensure Appwrite has processed the user creation
+      // This is important for the verification email to work properly
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Send the verification email
+      const result = await account.createVerification(redirectUrl);
+      
+      console.log('Verification email sent successfully', result);
     } catch (error) {
-      // In development, log the error but don't throw it
-      // This prevents registration from failing just because verification fails
-      if (process.env.NODE_ENV === 'development') {
-        console.log('Could not send verification email:', error);
-      }
-      // We're not throwing the error here to allow registration to succeed
-      // even if verification email sending fails
+      console.error('Failed to send verification email:', error);
+      throw error; // We now throw the error to properly handle it in the UI
     }
   }
 

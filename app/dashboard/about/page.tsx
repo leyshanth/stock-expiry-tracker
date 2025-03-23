@@ -3,9 +3,11 @@
 import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { BackToTop } from "@/components/ui/back-to-top"
-import { Github, Mail, Twitter } from "lucide-react"
+import { Mail } from "lucide-react"
+import { useAuth } from "@/lib/hooks/use-auth"
 
 export default function AboutPage() {
+  const { user } = useAuth()
   return (
     <div className="pb-8">
       <BackToTop />
@@ -29,14 +31,12 @@ export default function AboutPage() {
               <p className="text-muted-foreground text-center mt-1">Developer & Designer</p>
               
               <div className="flex gap-3 mt-4">
-                <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-card hover:bg-accent transition-colors">
-                  <Github className="h-5 w-5" />
-                </a>
-                <a href="mailto:contact@example.com" className="p-2 rounded-full bg-card hover:bg-accent transition-colors">
+                <a 
+                  href={`mailto:Leyshanth.1177@gmail.com?subject=Stock Expiry Tracker - Contact from ${user?.name || 'User'}`} 
+                  className="p-2 rounded-full bg-[#004BFE] hover:bg-[#004BFE]/90 text-white transition-colors"
+                  title="Email Leyshanth"
+                >
                   <Mail className="h-5 w-5" />
-                </a>
-                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-card hover:bg-accent transition-colors">
-                  <Twitter className="h-5 w-5" />
                 </a>
               </div>
             </div>

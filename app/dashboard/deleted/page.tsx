@@ -8,7 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
 import { formatDate } from "@/lib/utils/date-utils"
 import { exportToCsv } from "@/lib/utils/csv-export"
-import { Download, Trash2, RotateCcw, AlertTriangle } from "lucide-react"
+import { exportToPdf } from "@/lib/utils/pdf-export"
+import { Download, Trash2, RotateCcw, AlertTriangle, FileText } from "lucide-react"
 import { BackToTop } from "@/components/ui/back-to-top"
 
 export default function DeletedItemsPage() {
@@ -150,6 +151,34 @@ export default function DeletedItemsPage() {
       })
     }
   }
+  
+  const handleExportPdf = () => {
+    if (deletedItems.length === 0) {
+      toast({
+        title: "No Data",
+        description: "There are no deleted items to export",
+        variant: "destructive",
+      })
+      return
+    }
+
+    try {
+      // Export to PDF
+      exportToPdf(deletedItems, "deleted-items")
+      
+      toast({
+        title: "Success",
+        description: "PDF file downloaded successfully",
+      })
+    } catch (error) {
+      console.error("Failed to export PDF:", error)
+      toast({
+        title: "Error",
+        description: "Failed to export PDF file",
+        variant: "destructive",
+      })
+    }
+  }
 
   if (loading) {
     return (
@@ -174,14 +203,24 @@ export default function DeletedItemsPage() {
       <div className="container mx-auto max-w-4xl -mt-10">
         <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center bg-white rounded-xl shadow-md p-4">
           <div></div>
-          <Button 
-            onClick={handleExportCsv}
-            disabled={deletedItems.length === 0}
-            className="bg-[#004BFE] hover:bg-[#004BFE]/90 rounded-full"
-          >
-            <Download className="mr-2 h-4 w-4" />
-            Export to CSV
-          </Button>
+          <div className="flex space-x-2">
+            <Button 
+              onClick={handleExportCsv}
+              disabled={deletedItems.length === 0}
+              className="bg-[#004BFE] hover:bg-[#004BFE]/90 rounded-full"
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Export to CSV
+            </Button>
+            <Button 
+              onClick={handleExportPdf}
+              disabled={deletedItems.length === 0}
+              className="bg-[#004BFE] hover:bg-[#004BFE]/90 rounded-full"
+            >
+              <FileText className="mr-2 h-4 w-4" />
+              Export to PDF
+            </Button>
+          </div>
         </div>
       
         {deletedItems.length === 0 ? (

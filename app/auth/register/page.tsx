@@ -58,9 +58,9 @@ export default function RegisterPage() {
       await register(email, password, name)
       toast({
         title: "Success",
-        description: "Account created successfully",
+        description: "Account created successfully. Please check your email for verification link.",
       })
-      router.push("/dashboard/home")
+      router.push("/auth/verification")
     } catch (error) {
       console.error("Registration error:", error)
       toast({
@@ -106,13 +106,16 @@ export default function RegisterPage() {
             onChange={(e) => setPassword(e.target.value)}
             required
             className="w-full p-4 bg-gray-100 rounded-full text-gray-700 focus:outline-none"
+            autoComplete="new-password"
+            aria-autocomplete="list"
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
             className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500"
+            aria-label={showPassword ? "Hide password" : "Show password"}
           >
-            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
           </button>
         </div>
         <p className="text-xs text-gray-500 -mt-1 ml-4">
@@ -127,13 +130,14 @@ export default function RegisterPage() {
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
             className="w-full p-4 bg-gray-100 rounded-full text-gray-700 focus:outline-none"
+            autoComplete="new-password"
           />
           <button
             type="button"
             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
             className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500"
           >
-            {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            {showConfirmPassword ? <Eye size={20} /> : <EyeOff size={20} />}
           </button>
         </div>
 
