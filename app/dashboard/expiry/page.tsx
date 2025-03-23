@@ -9,11 +9,12 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
-import { Barcode, Camera, Check, X, AlertTriangle, Plus } from "lucide-react"
+import { Barcode, Camera, Check, X, AlertTriangle, Plus, Edit, Package } from "lucide-react"
 import { format } from "date-fns"
 import Image from "next/image"
 import { formatCurrency } from "@/lib/utils"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
 
 // Import Quagga dynamically since it's a client-side only library
 import dynamic from "next/dynamic"
@@ -29,156 +30,7 @@ const QuaggaScanner = dynamic(() => import("@/components/expiry/barcode-scanner"
   ),
 })
 
-// Add Product Dialog component
-function AddProductDialog({
-  open,
-  onOpenChange,
-  barcode,
-  onProductAdded,
-}: {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  barcode: string
-  onProductAdded: (product: Product) => void
-}) {
-  const { user } = useAuth()
-  const { toast } = useToast()
-  const [newProductName, setNewProductName] = useState("")
-  const [newProductPrice, setNewProductPrice] = useState("")
-  const [isAddingProduct, setIsAddingProduct] = useState(false)
 
-  // Handle adding a new product
-  const handleAddProduct = async () => {
-    if (!user || !barcode || !newProductName) return
-    
-    try {
-      setIsAddingProduct(true)
-      
-      // Create new product
-      const newProduct = await databaseService.createProduct({
-        user_id: user.$id,
-        barcode,
-        name: newProductName,
-        price: newProductPrice ? parseFloat(newProductPrice) : 0,
-        category: "",
-        weight: "",
-        image_id: "",
-      })
-      
-      if (newProduct) {
-        toast({
-          title: "Product Added",
-          description: `${newProductName} has been added successfully.`,
-        })
-        
-        // Close dialog and set the new product
-        onOpenChange(false)
-        onProductAdded(newProduct)
-        
-        // Reset form
-        setNewProductName("")
-        setNewProductPrice("")
-      }
-    } catch (error) {
-      console.error("Failed to add product:", error)
-      toast({
-        title: "Error",
-        description: "Failed to add the product. Please try again.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsAddingProduct(false)
-    }
-  }
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Add New Product</DialogTitle>
-          <DialogDescription>
-            This product doesn't exist in your inventory. Please add it first.
-          </DialogDescription>
-        </DialogHeader>
-        
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <label htmlFor="newBarcode" className="text-sm font-medium">
-              Barcode
-            </label>
-            <Input
-              id="newBarcode"
-              value={barcode}
-              disabled
-              className="rounded-lg"
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <label htmlFor="newProductName" className="text-sm font-medium flex items-center">
-              <span className="mr-1">Product Name</span>
-              <span className="text-red-500">*</span>
-            </label>
-            <Input
-              id="newProductName"
-              value={newProductName}
-              onChange={(e) => setNewProductName(e.target.value)}
-              className="rounded-lg"
-              required
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <label htmlFor="newProductPrice" className="text-sm font-medium">
-              Price
-            </label>
-            <Input
-              id="newProductPrice"
-              type="number"
-              min="0"
-              step="0.01"
-              value={newProductPrice}
-              onChange={(e) => setNewProductPrice(e.target.value)}
-              className="rounded-lg"
-              placeholder="0.00"
-            />
-          </div>
-        </div>
-        
-        <DialogFooter className="flex justify-between sm:justify-between">
-          <Button
-            variant="outline"
-            onClick={() => {
-              onOpenChange(false)
-              setNewProductName("")
-              setNewProductPrice("")
-            }}
-          >
-            Cancel
-          </Button>
-          
-          <Button
-            onClick={handleAddProduct}
-            disabled={!newProductName || isAddingProduct}
-            className="bg-[#004BFE]"
-          >
-            {isAddingProduct ? (
-              <>
-                <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent mr-2"></div>
-                Adding...
-              </>
-            ) : (
-              <>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Product
-              </>
-            )}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  )
-}
 
 export default function ExpiryPage() {
   const { user } = useAuth()
@@ -200,15 +52,105 @@ export default function ExpiryPage() {
   const barcodeInputRef = useRef<HTMLInputElement>(null)
   
   // Add product dialog state
-  const [showAddProductDialog, setShowAddProductDialog] = useState(false)
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
+  const [isAddingProduct, setIsAddingProduct] = useState(false)
   
-  // Handle product added from dialog
-  const handleProductAdded = (newProduct: Product) => {
-    setProduct(newProduct)
-    toast({
-      title: "Success",
-      description: `${newProduct.name} has been added to your inventory.`,
+  // Product form state
+  const [formData, setFormData] = useState({
+    barcode: "",
+    name: "",
+    price: "",
+    weight: "",
+    category: "",
+    image: null as File | null,
+  })
+  
+  // Reset the product form
+  const resetForm = () => {
+    setFormData({
+      barcode: "",
+      name: "",
+      price: "",
+      weight: "",
+      category: "",
+      image: null,
     })
+  }
+
+  // Handle input change for the add product form
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, files } = e.target
+    
+    if (name === "image" && files && files.length > 0) {
+      setFormData(prev => ({ ...prev, image: files[0] }))
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }))
+    }
+  }
+
+  // Handle adding a product
+  const handleAddProduct = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!user) return
+
+    setIsAddingProduct(true)
+
+    try {
+      // Validate form
+      if (!formData.barcode || !formData.name) {
+        toast({
+          title: "Error",
+          description: "Barcode and product name are required",
+          variant: "destructive",
+        })
+        setIsAddingProduct(false)
+        return
+      }
+
+      let imageId = undefined
+
+      // Upload image if provided
+      if (formData.image) {
+        try {
+          imageId = await databaseService.uploadProductImage(formData.image, user.$id)
+        } catch (imageError) {
+          console.error("Failed to upload image:", imageError)
+          // Continue without image if upload fails
+        }
+      }
+
+      // Create product
+      const productData = {
+        user_id: user.$id,
+        barcode: formData.barcode,
+        name: formData.name,
+        price: formData.price ? parseFloat(formData.price) : 0,
+        weight: formData.weight,
+        category: formData.category,
+        image_id: imageId || "",
+      }
+
+      const newProduct = await databaseService.createProduct(productData)
+
+      // Close dialog and update product
+      setIsAddDialogOpen(false)
+      setProduct(newProduct)
+      resetForm()
+
+      toast({
+        title: "Product Added",
+        description: `${newProduct.name} has been added to your inventory.`,
+      })
+    } catch (error) {
+      console.error("Failed to add product:", error)
+      toast({
+        title: "Error",
+        description: "Failed to add the product. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsAddingProduct(false)
+    }
   }
 
   // Handle barcode detection
@@ -236,7 +178,8 @@ export default function ExpiryPage() {
       } else {
         setProduct(null)
         // Show dialog to add product instead of redirecting
-        setShowAddProductDialog(true)
+        setFormData(prev => ({ ...prev, barcode }))
+        setIsAddDialogOpen(true)
         setScannedBarcode(barcode)
         toast({
           title: "Product Not Found",
@@ -519,7 +462,10 @@ export default function ExpiryPage() {
                   Cancel
                 </Button>
                 <Button 
-                  onClick={() => setShowAddProductDialog(true)}
+                  onClick={() => {
+                    setFormData(prev => ({ ...prev, barcode: scannedBarcode }))
+                    setIsAddDialogOpen(true)
+                  }}
                   className="rounded-full bg-[#004BFE] hover:bg-[#004BFE]/90"
                 >
                   Add Product
@@ -530,13 +476,7 @@ export default function ExpiryPage() {
         ) : null}
       </div>
       
-      {/* Use the AddProductDialog component */}
-      <AddProductDialog
-        open={showAddProductDialog}
-        onOpenChange={setShowAddProductDialog}
-        barcode={scannedBarcode}
-        onProductAdded={handleProductAdded}
-      />
+
     </div>
   )
 }

@@ -180,7 +180,7 @@ export default function HomePage() {
       <BackToTop />
       {/* New Header with Blue Background */}
       <div className="bg-[#004BFE] text-white p-4 pt-6 pb-16 rounded-b-3xl">
-        <h1 className="text-xl font-bold">{greeting} {user?.name || 'User'}</h1>
+        <h1 className="text-xl font-bold">{greeting}, {user?.name || 'User'}</h1>
         <p className="text-white/80 mt-1">Welcome to your Date Expiry Tracker App</p>
       </div>
 

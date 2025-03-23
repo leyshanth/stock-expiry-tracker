@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ArrowLeft, User, Settings, LogOut, Info, Trash2 } from 'lucide-react';
+import { ArrowLeft, User, Settings, LogOut, Info, Trash2, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/lib/hooks/use-auth';
 import { MobileNav } from '@/components/layout/mobile-nav';
@@ -54,6 +54,13 @@ export default function SettingsLayout({
               >
                 <Trash2 className="mr-2 h-4 w-4" />
                 Deleted Items
+              </Link>
+              <Link
+                href="/dashboard/products"
+                className="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-secondary"
+              >
+                <Package className="mr-2 h-4 w-4" />
+                Products
               </Link>
               
               <div className="pt-6 mt-6 border-t border-border">
