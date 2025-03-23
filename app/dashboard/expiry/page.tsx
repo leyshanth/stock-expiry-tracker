@@ -461,9 +461,22 @@ export default function ExpiryPage() {
                   Cancel
                 </Button>
                 
-                <Button onClick={handleSaveExpiry} className="rounded-full bg-[#004BFE] hover:bg-[#004BFE]/90">
-                  <Check className="mr-2 h-4 w-4" />
-                  Save Expiry
+                <Button 
+                  onClick={handleSaveExpiry} 
+                  className="rounded-full bg-[#004BFE] hover:bg-[#004BFE]/90"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Check className="mr-2 h-4 w-4" />
+                      Save Expiry
+                    </>
+                  )}
                 </Button>
               </div>
             </div>
