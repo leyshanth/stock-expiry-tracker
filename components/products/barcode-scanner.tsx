@@ -24,6 +24,10 @@ export default function BarcodeScanner({
   const [hasError, setHasError] = useState(false);
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
   const { toast } = useToast();
+  
+  // For multiple scan validation
+  const [barcodeHistory, setBarcodeHistory] = useState<{[key: string]: number}>({});
+  const [validationCount, setValidationCount] = useState(3); // Number of times the same barcode must be detected
 
   // Handle escape key to close modal
   useEffect(() => {
@@ -259,17 +263,37 @@ export default function BarcodeScanner({
           console.log("Barcode detected:", code);
           
           if (typeof code === 'string' && code.length > 0) {
-            // Play a success sound
-            try {
-              const beep = new Audio("/beep.mp3");
-              beep.play().catch(() => {});
-            } catch (e) {}
-            
-            // Stop all scanning and camera resources
-            stopEverything();
-            
-            // Call onDetected with the barcode
-            onDetected(code);
+            // Update barcode history counter
+            setBarcodeHistory(prev => {
+              const newHistory = { ...prev };
+              newHistory[code] = (newHistory[code] || 0) + 1;
+              
+              console.log(`Barcode ${code} scanned ${newHistory[code]}/${validationCount} times`);
+              
+              // Play a soft beep for progress feedback
+              try {
+                const softBeep = new Audio("/beep.mp3");
+                softBeep.volume = 0.3;
+                softBeep.play().catch(() => {});
+              } catch (e) {}
+              
+              // If we've reached the validation threshold
+              if (newHistory[code] >= validationCount) {
+                // Play a success sound at full volume
+                try {
+                  const beep = new Audio("/beep.mp3");
+                  beep.play().catch(() => {});
+                } catch (e) {}
+                
+                // Stop all scanning and camera resources
+                stopEverything();
+                
+                // Call onDetected with the barcode
+                onDetected(code);
+              }
+              
+              return newHistory;
+            });
           }
         });
         
@@ -293,12 +317,20 @@ export default function BarcodeScanner({
           
           // Only highlight successful reads with a subtle indicator
           if (result && result.codeResult && result.codeResult.code) {
-            // Draw a subtle green indicator at the bottom of the screen
+            const code = result.codeResult.code;
+            const scanCount = barcodeHistory[code] || 0;
             const width = Number(drawingCanvas.getAttribute("width"));
             const height = Number(drawingCanvas.getAttribute("height"));
             
+            // Draw a progress indicator at the bottom of the screen
+            const progressWidth = (width / validationCount) * scanCount;
             drawingCtx.fillStyle = "rgba(0, 200, 0, 0.5)";
-            drawingCtx.fillRect(0, height - 5, width, 5);
+            drawingCtx.fillRect(0, height - 10, progressWidth, 10);
+            
+            // Add scan count text
+            drawingCtx.font = "16px Arial";
+            drawingCtx.fillStyle = "rgba(255, 255, 255, 0.8)";
+            drawingCtx.fillText(`Scan ${scanCount}/${validationCount}`, 10, height - 20);
           } else if (result && result.box) {
             // Highlight detected barcode area with a subtle box to help with alignment
             // This helps users see when a barcode is being detected but not yet recognized

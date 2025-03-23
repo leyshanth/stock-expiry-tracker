@@ -22,11 +22,6 @@ export function MobileNav() {
       label: "Home",
     },
     {
-      href: "/dashboard/products",
-      icon: Package,
-      label: "Products",
-    },
-    {
       href: "/dashboard/expiry",
       icon: Calendar,
       label: "Expiry",

@@ -476,7 +476,110 @@ export default function ExpiryPage() {
         ) : null}
       </div>
       
-
+      {/* Add Product Dialog */}
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add New Product</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleAddProduct}>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="barcode">Barcode</Label>
+                <Input
+                  id="barcode"
+                  name="barcode"
+                  value={formData.barcode}
+                  onChange={handleInputChange}
+                  placeholder="Enter product barcode"
+                  className="rounded-lg"
+                  required
+                />
+              </div>
+              
+              <div className="grid gap-2">
+                <Label htmlFor="name">Product Name</Label>
+                <Input
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  placeholder="Enter product name"
+                  className="rounded-lg"
+                  required
+                />
+              </div>
+              
+              <div className="grid gap-2">
+                <Label htmlFor="price">Price</Label>
+                <Input
+                  id="price"
+                  name="price"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.price}
+                  onChange={handleInputChange}
+                  placeholder="Enter price"
+                  className="rounded-lg"
+                />
+              </div>
+              
+              <div className="grid gap-2">
+                <Label htmlFor="weight">Weight/Volume</Label>
+                <Input
+                  id="weight"
+                  name="weight"
+                  value={formData.weight}
+                  onChange={handleInputChange}
+                  placeholder="e.g. 500g, 1L"
+                  className="rounded-lg"
+                />
+              </div>
+              
+              <div className="grid gap-2">
+                <Label htmlFor="category">Category</Label>
+                <Input
+                  id="category"
+                  name="category"
+                  value={formData.category}
+                  onChange={handleInputChange}
+                  placeholder="e.g. Dairy, Produce"
+                  className="rounded-lg"
+                />
+              </div>
+              
+              <div className="grid gap-2">
+                <Label htmlFor="image">Product Image</Label>
+                <Input
+                  id="image"
+                  name="image"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleInputChange}
+                  className="rounded-lg"
+                />
+              </div>
+            </div>
+            
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setIsAddDialogOpen(false)} className="rounded-full">
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isAddingProduct} className="rounded-full bg-[#004BFE] hover:bg-[#004BFE]/90">
+                {isAddingProduct ? (
+                  <>
+                    <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
+                    Adding...
+                  </>
+                ) : (
+                  <>Add Product</>
+                )}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
