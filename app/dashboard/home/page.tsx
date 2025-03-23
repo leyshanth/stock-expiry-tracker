@@ -112,15 +112,53 @@ export default function HomePage() {
     const daysUntilExpiry = differenceInDays(new Date(expiryDate), today)
     
     if (daysUntilExpiry < 0) {
-      return { status: "Expired", color: "expiry-card-red", textColor: "text-red-500" }
+      return { 
+        status: "Expired", 
+        color: "bg-red-100", 
+        textColor: "text-red-500",
+        badgeColor: "bg-red-500",
+        badgeTextColor: "text-white"
+      }
     } else if (isToday(new Date(expiryDate))) {
-      return { status: "Expiring Today", color: "expiry-card-red", textColor: "text-red-500" }
+      return { 
+        status: "Expiring Today", 
+        color: "bg-red-100", 
+        textColor: "text-red-500",
+        badgeColor: "bg-red-500",
+        badgeTextColor: "text-white"
+      }
     } else if (isTomorrow(new Date(expiryDate))) {
-      return { status: "Expiring Tomorrow", color: "expiry-card-yellow", textColor: "text-yellow-500" }
+      return { 
+        status: "Expiring Tomorrow", 
+        color: "bg-yellow-100", 
+        textColor: "text-yellow-600",
+        badgeColor: "bg-yellow-500",
+        badgeTextColor: "text-white"
+      }
     } else if (daysUntilExpiry <= 7) {
-      return { status: `Expiring in ${daysUntilExpiry} days`, color: "expiry-card-yellow", textColor: "text-yellow-500" }
+      return { 
+        status: `Expiring in ${daysUntilExpiry} days`, 
+        color: "bg-yellow-100", 
+        textColor: "text-yellow-600",
+        badgeColor: "bg-yellow-500",
+        badgeTextColor: "text-white"
+      }
+    } else if (daysUntilExpiry <= 31) {
+      return { 
+        status: `Expiring in ${daysUntilExpiry} days`, 
+        color: "bg-green-100", 
+        textColor: "text-green-600",
+        badgeColor: "bg-green-500",
+        badgeTextColor: "text-white"
+      }
     } else {
-      return { status: "Good", color: "expiry-card-green", textColor: "text-green-500" }
+      return { 
+        status: "Good", 
+        color: "bg-white", 
+        textColor: "text-green-600",
+        badgeColor: "bg-green-500",
+        badgeTextColor: "text-white"
+      }
     }
   }
   
@@ -248,9 +286,9 @@ export default function HomePage() {
         ) : (
           <div className="space-y-4 mt-4">
             {getFilteredExpiryItems().slice(0, 6).map((item) => {
-              const { status, color, textColor } = getExpiryStatus(item.expiry_date)
+              const { status, color, textColor, badgeColor, badgeTextColor } = getExpiryStatus(item.expiry_date)
               return (
-                <div key={item.$id} className="bg-[#E8F4F8] rounded-xl overflow-hidden flex mb-4">
+                <div key={item.$id} className={`${color} rounded-xl overflow-hidden flex mb-4 relative shadow-sm`}>
                   <div className="relative w-1/3 h-auto overflow-hidden cursor-pointer" 
                     onClick={() => {
                       if (item.product?.image_id) {
@@ -286,11 +324,16 @@ export default function HomePage() {
                     )}
                   </div>
                   <div className="p-4 w-2/3">
+                    {/* Expiry Badge */}
+                    <div className={`absolute top-2 left-2 ${badgeColor} ${badgeTextColor} text-xs px-2 py-1 rounded-full font-medium z-10`}>
+                      {status}
+                    </div>
+                    
                     <h3 className="text-lg font-semibold">
                       {item.product?.name || "Item Name"}
                     </h3>
-                    <p className="text-gray-500 mt-1">Expiry Date: {format(new Date(item.expiry_date), "dd/MM/yyyy")}</p>
-                    <p className="text-gray-500">Qty - {item.quantity}</p>
+                    <p className="text-gray-600 mt-1">Expiry Date: {format(new Date(item.expiry_date), "dd/MM/yyyy")}</p>
+                    <p className="text-gray-600">Qty - {item.quantity}</p>
                     <button 
                       onClick={() => item.$id ? handleDeleteItem(item.$id) : undefined}
                       className="mt-2 py-1 px-3 rounded-full bg-red-500 hover:bg-red-600 text-white text-xs font-medium flex items-center justify-center transition-colors w-auto inline-flex"

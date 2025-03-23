@@ -291,12 +291,15 @@ export default function ExpiryPage() {
   }, [])
   
   return (
-    <div className="pb-8">
-      <div className="flex flex-col space-y-6">
-        <div className="pt-4 pb-8 -mt-2">
-          <h2 className="text-xl font-semibold text-[#004BFE]">Add Expiry Information</h2>
-          <p className="text-muted-foreground">Scan a product barcode to add expiry information</p>
-        </div>
+    <div className="pb-8 space-y-6">
+      {/* Blue Header with White Text */}
+      <div className="bg-[#004BFE] text-white p-4 pt-6 pb-16 rounded-b-3xl">
+        <h1 className="text-xl font-bold">Add Expiry Information</h1>
+        <p className="text-white/80 mt-1">Scan a product barcode to add expiry information</p>
+      </div>
+      
+      <div className="flex flex-col space-y-6 -mt-10">
+        <div></div>
         
         {!isScannerActive && !product ? (
           <div className="grid gap-6 md:grid-cols-2">
