@@ -19,6 +19,17 @@
   .mobile-nav-icon {
     @apply h-6 w-6 mb-0.5;
   }
+  
+  /* Custom styling for password fields to ensure they display with black dots */
+  .password-field {
+    -webkit-text-security: disc !important;
+    text-security: disc !important;
+  }
+  
+  .password-field[type="text"] {
+    -webkit-text-security: none !important;
+    text-security: none !important;
+  }
 
   .card-grid {
     @apply grid gap-5 md:grid-cols-2 lg:grid-cols-3;

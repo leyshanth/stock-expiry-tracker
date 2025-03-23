@@ -105,9 +105,10 @@ export default function RegisterPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full p-4 bg-gray-100 rounded-full text-gray-700 focus:outline-none"
-            autoComplete="new-password"
-            aria-autocomplete="list"
+            className="w-full p-4 bg-gray-100 rounded-full text-gray-700 focus:outline-none password-field"
+            autoComplete="off"
+            aria-autocomplete="none"
+            spellCheck="false"
           />
           <button
             type="button"
@@ -129,13 +130,16 @@ export default function RegisterPage() {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
-            className="w-full p-4 bg-gray-100 rounded-full text-gray-700 focus:outline-none"
-            autoComplete="new-password"
+            className="w-full p-4 bg-gray-100 rounded-full text-gray-700 focus:outline-none password-field"
+            autoComplete="off"
+            aria-autocomplete="none"
+            spellCheck="false"
           />
           <button
             type="button"
             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
             className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500"
+            aria-label={showConfirmPassword ? "Hide password" : "Show password"}
           >
             {showConfirmPassword ? <Eye size={20} /> : <EyeOff size={20} />}
           </button>

@@ -73,14 +73,18 @@ export default function LoginPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full p-4 bg-gray-100 rounded-full text-gray-700 focus:outline-none"
+            className="w-full p-4 bg-gray-100 rounded-full text-gray-700 focus:outline-none password-field"
+            autoComplete="off"
+            aria-autocomplete="none"
+            spellCheck="false"
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
             className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500"
+            aria-label={showPassword ? "Hide password" : "Show password"}
           >
-            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
           </button>
         </div>
 
