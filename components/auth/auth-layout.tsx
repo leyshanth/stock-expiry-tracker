@@ -13,6 +13,12 @@ export default function AuthLayout({ children, title, subtitle }: AuthLayoutProp
       {/* Top curved shape with title and subtitle */}
       <div className="relative h-72 bg-[#004BFE] rounded-bl-[40%]">
         <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <h1 className="text-2xl font-semibold text-white mb-4">
+            Stock & Expiry Tracker
+          </h1>
+          <p className="text-sm text-white mb-8">
+            Manage your inventory and track expiry dates
+          </p>
           <h2 className="text-5xl font-bold text-white mb-2">{title}</h2>
           {subtitle && <p className="text-white mb-8">{subtitle}</p>}
         </div>
