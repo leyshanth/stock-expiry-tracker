@@ -32,7 +32,7 @@ export default function AboutPage() {
               <p className="text-muted-foreground text-center mt-1">Developer & Designer</p>
               
               <div className="flex gap-3 mt-4">
-                <a href="mailto:contact@example.com" className="p-2 rounded-full bg-card hover:bg-accent transition-colors">
+                <a href="mailto:leyshanth.1177@gmail.com" className="p-2 rounded-full bg-card hover:bg-accent transition-colors">
                   <Mail className="h-5 w-5" />
                 </a>
               </div>
