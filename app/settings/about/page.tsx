@@ -3,7 +3,7 @@
 import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { BackToTop } from "@/components/ui/back-to-top"
-import { Github, Mail, Twitter } from "lucide-react"
+import { Mail } from "lucide-react"
 
 export default function AboutPage() {
   return (
@@ -32,14 +32,8 @@ export default function AboutPage() {
               <p className="text-muted-foreground text-center mt-1">Developer & Designer</p>
               
               <div className="flex gap-3 mt-4">
-                <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-card hover:bg-accent transition-colors">
-                  <Github className="h-5 w-5" />
-                </a>
                 <a href="mailto:contact@example.com" className="p-2 rounded-full bg-card hover:bg-accent transition-colors">
                   <Mail className="h-5 w-5" />
-                </a>
-                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-card hover:bg-accent transition-colors">
-                  <Twitter className="h-5 w-5" />
                 </a>
               </div>
             </div>
