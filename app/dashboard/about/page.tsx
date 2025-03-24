@@ -32,7 +32,7 @@ export default function AboutPage() {
               
               <div className="flex gap-3 mt-4">
                 <a 
-                  href={`mailto:leyshanth.1177@gmail.com?subject=Stock Expiry Tracker - Contact from ${user?.name || 'User'}`} 
+                  href={`mailto:leyshanth.1177@gmail.com?subject=Stock Expiry Tracker - Contact`} 
                   className="p-2 rounded-full bg-[#004BFE] hover:bg-[#004BFE]/90 text-white transition-colors"
                   title="Email Leyshanth"
                 >
