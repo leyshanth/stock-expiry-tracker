@@ -1,0 +1,183 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import '../styles/theme.css';
+
+@layer components {
+  .mobile-nav {
+    @apply fixed bottom-0 left-0 z-50 flex h-16 w-full items-center justify-around border-t border-border bg-white shadow-lg px-2 pt-1;
+  }
+
+  .mobile-nav-item {
+    @apply flex flex-col items-center justify-start rounded-full p-3 pt-0 text-sm text-gray-500 transition-colors hover:text-[#004BFE] flex-1 mx-1;
+  }
+
+  .mobile-nav-item.active {
+    @apply text-[#004BFE] font-medium;
+  }
+  
+  .mobile-nav-icon {
+    @apply h-6 w-6 mb-0.5;
+  }
+  
+  /* Custom styling for password fields to ensure they display with black dots */
+  .password-field {
+    -webkit-text-security: disc !important;
+    text-security: disc !important;
+  }
+  
+  .password-field[type="text"] {
+    -webkit-text-security: none !important;
+    text-security: none !important;
+  }
+
+  .card-grid {
+    @apply grid gap-5 md:grid-cols-2 lg:grid-cols-3;
+  }
+
+  .dashboard-card {
+    @apply flex h-full flex-col justify-between rounded-xl overflow-hidden border-0 shadow-md transition-all duration-200 hover:shadow-lg;
+  }
+  
+  .product-card {
+    @apply flex h-full flex-col justify-between rounded-xl overflow-hidden border-0 shadow-md hover:shadow-lg transition-all duration-200;
+  }
+  
+  .product-image {
+    @apply h-48 w-full object-cover bg-muted;
+  }
+
+  .form-container {
+    @apply mx-auto max-w-md space-y-6 p-4;
+  }
+  
+  .section-title {
+    @apply text-xl font-semibold mb-4 flex items-center;
+  }
+  
+  .filter-button {
+    @apply rounded-full px-4 py-2 text-sm font-medium transition-colors;
+  }
+  
+  .filter-button.active {
+    @apply bg-primary text-primary-foreground;
+  }
+  
+  .filter-button:not(.active) {
+    @apply bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground;
+  }
+  
+  .expiry-badge {
+    @apply absolute top-2 right-2 rounded-full px-3 py-1 text-xs font-medium shadow-sm;
+  }
+  
+  .action-button {
+    @apply rounded-full flex items-center justify-center transition-all duration-200;
+  }
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Add padding to the bottom of the page to account for the mobile nav */
+  main {
+    @apply pb-20;
+  }
+}
+
+/* Status colors for expiry items */
+.status-expired {
+  @apply bg-red-50 dark:bg-red-950;
+}
+
+.status-expiring-soon {
+  @apply bg-amber-50 dark:bg-amber-950;
+}
+
+.status-ok {
+  @apply bg-green-50 dark:bg-green-950;
+}
+
+/* Barcode scanner styles */
+.drawingBuffer {
+  @apply absolute left-0 top-0 h-full w-full;
+}
+
+/* Fix for mobile navigation */
+.fixed.bottom-8 {
+  bottom: 16px !important;
+  max-width: 95% !important;
+  margin: 0 auto !important;
+  left: 0 !important;
+  right: 0 !important;
+}
